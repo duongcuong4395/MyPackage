@@ -9,7 +9,7 @@ import SwiftUI
 
 @available(iOS 17.0, *)
 extension View {
-    func pinchZoom(_ dimsBackground: Bool = true) -> some View {
+    public func pinchZoom(_ dimsBackground: Bool = true) -> some View {
         PinchZoomHelper(dimsBackgound: dimsBackground) {
             self
         }
@@ -17,18 +17,18 @@ extension View {
 }
 
 @available(iOS 17.0, *)
-struct ZoomContainer<Content: View>: View {
-    var content: Content
+public struct ZoomContainer<Content: View>: View {
+    public var content: Content
     
     //@ViewBuilder var content: Content
     private var containerData = ZoomContainerData()
     
-    init(@ViewBuilder content: @escaping () -> Content) {
+    public init(@ViewBuilder content: @escaping () -> Content) {
         self.content = content()
     }
     
     //@available(iOS 17.0, *)
-    var body: some View {
+    public var body: some View {
         GeometryReader{ _ in
             content
                 .environment(containerData)
