@@ -18,15 +18,15 @@ extension Array where Element: Identifiable {
 }
 
 @available(iOS 17.0, *)
-struct StackedCardsView<Item: Identifiable, Content: View>: View {
-    var items: [Item]
-    let content: (Item) -> Content
+public struct StackedCardsView<Item: Identifiable, Content: View>: View {
+    public var items: [Item]
+    public let content: (Item) -> Content
     
     // State variables
     @State private var isRotationEnabled: Bool = true
     @State private var showsIndicator: Bool = false
 
-    var body: some View {
+    public var body: some View {
         VStack {
             GeometryReader { proxy in
                 let size = proxy.size
@@ -65,8 +65,8 @@ struct StackedCardsView<Item: Identifiable, Content: View>: View {
 
 @available(iOS 17.0, *)
 struct CardEffectModifier: ViewModifier {
-    let geometryProxy: GeometryProxy
-    let isRotationEnabled: Bool
+    public let geometryProxy: GeometryProxy
+    public let isRotationEnabled: Bool
     
     func body(content: Content) -> some View {
         content
