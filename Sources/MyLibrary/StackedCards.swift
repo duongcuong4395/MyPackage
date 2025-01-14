@@ -5,6 +5,8 @@
 //  Created by Macbook on 14/1/25.
 //
 
+import Foundation
+
 import SwiftUI
 
 @available(iOS 17.0, *)
@@ -21,16 +23,17 @@ extension Array where Element: Identifiable {
 public struct StackedCardsView<Item: Identifiable, Content: View>: View {
     public var items: [Item]
     public let content: (Item) -> Content
-    
+
     // State variables
     @State private var isRotationEnabled: Bool = true
     @State private var showsIndicator: Bool = false
+
     // Custom public initializer
     public init(items: [Item], @ViewBuilder content: @escaping (Item) -> Content) {
         self.items = items
         self.content = content
     }
-    
+
     public var body: some View {
         VStack {
             GeometryReader { proxy in
@@ -41,11 +44,8 @@ public struct StackedCardsView<Item: Identifiable, Content: View>: View {
                             content(item)
                                 .padding(.horizontal, 10)
                                 .frame(width: size.width)
-                                .modifier(CardEffectModifier(
-                                    geometryProxy: proxy,
-                                    isRotationEnabled: isRotationEnabled
-                                ))
-                                .zIndex(items.zIndex(item))
+                                .applyCardEffects(proxy: proxy, isRotationEnabled: isRotationEnabled) // Áp dụng hiệu ứng
+                                .zIndex(items.zIndex(item)) // Xác định thứ tự hiển thị
                         }
                     }
                     .padding(.vertical, 15)
@@ -53,60 +53,51 @@ public struct StackedCardsView<Item: Identifiable, Content: View>: View {
                 .scrollTargetBehavior(.paging)
                 .scrollIndicators(showsIndicator ? .visible : .hidden)
             }
-            
-            /*
-            // Optional UI Controls
-            VStack(spacing: 10) {
-                Toggle("Enable Rotation", isOn: $isRotationEnabled)
-                Toggle("Show Scroll Indicator", isOn: $showsIndicator)
-            }
-            .padding()
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
-            .padding()
-            */
         }
     }
 }
 
 @available(iOS 17.0, *)
-struct CardEffectModifier: ViewModifier {
-    public let geometryProxy: GeometryProxy
-    public let isRotationEnabled: Bool
-    
-    func body(content: Content) -> some View {
-        content
-            .scaleEffect(scale(geometryProxy: geometryProxy), anchor: .trailing)
-            .rotationEffect(rotation(geometryProxy: geometryProxy))
-            .offset(x: minXOffset(geometryProxy: geometryProxy))
-            .offset(x: additionalOffset(geometryProxy: geometryProxy))
+extension View {
+    /// Áp dụng các hiệu ứng như scale, rotation, và offset.
+    func applyCardEffects(proxy: GeometryProxy, isRotationEnabled: Bool) -> some View {
+        let scaleValue = scale(proxy: proxy, scale: 0.1)
+        let rotationValue = rotation(proxy: proxy, rotation: isRotationEnabled ? 5 : 0)
+        let minXValue = minX(proxy)
+        let excessMinXValue = excessMinX(proxy: proxy, offset: isRotationEnabled ? 8 : 10)
+
+        return self
+            .scaleEffect(scaleValue, anchor: .trailing)
+            .rotationEffect(rotationValue)
+            .offset(x: minXValue)
+            .offset(x: excessMinXValue)
     }
-    
+
     // MARK: - Helper Functions
-    private func progress(geometryProxy: GeometryProxy, limit: CGFloat = 2) -> CGFloat {
-        let maxX = geometryProxy.frame(in: .scrollView(axis: .horizontal)).maxX
-        let width = geometryProxy.bounds(of: .scrollView(axis: .horizontal))?.width ?? 0
+    private func progress(proxy: GeometryProxy, limit: CGFloat = 2) -> CGFloat {
+        let maxX = proxy.frame(in: .scrollView(axis: .horizontal)).maxX
+        let width = proxy.bounds(of: .scrollView(axis: .horizontal))?.width ?? 0
         let progress = (maxX / width) - 1.0
         return min(progress, limit)
     }
-    
-    private func scale(geometryProxy: GeometryProxy, scale: CGFloat = 0.1) -> CGFloat {
-        let progress = progress(geometryProxy: geometryProxy)
+
+    private func scale(proxy: GeometryProxy, scale: CGFloat = 0.1) -> CGFloat {
+        let progress = progress(proxy: proxy)
         return 1 - (progress * scale)
     }
-    
-    private func rotation(geometryProxy: GeometryProxy, rotationAngle: CGFloat = 5) -> Angle {
-        guard isRotationEnabled else { return .degrees(0) }
-        let progress = progress(geometryProxy: geometryProxy)
-        return .degrees(progress * rotationAngle)
+
+    private func rotation(proxy: GeometryProxy, rotation: CGFloat = 5) -> Angle {
+        let progress = progress(proxy: proxy)
+        return .degrees(progress * rotation)
     }
-    
-    private func minXOffset(geometryProxy: GeometryProxy) -> CGFloat {
-        let minX = geometryProxy.frame(in: .scrollView(axis: .horizontal)).minX
+
+    private func minX(_ proxy: GeometryProxy) -> CGFloat {
+        let minX = proxy.frame(in: .scrollView(axis: .horizontal)).minX
         return minX < 0 ? 0 : -minX
     }
-    
-    private func additionalOffset(geometryProxy: GeometryProxy, offset: CGFloat = 8) -> CGFloat {
-        let progress = progress(geometryProxy: geometryProxy)
+
+    private func excessMinX(proxy: GeometryProxy, offset: CGFloat = 10) -> CGFloat {
+        let progress = progress(proxy: proxy)
         return progress * offset
     }
 }
