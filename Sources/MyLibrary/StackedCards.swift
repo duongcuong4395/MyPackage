@@ -25,7 +25,12 @@ public struct StackedCardsView<Item: Identifiable, Content: View>: View {
     // State variables
     @State private var isRotationEnabled: Bool = true
     @State private var showsIndicator: Bool = false
-
+    // Custom public initializer
+    public init(items: [Item], @ViewBuilder content: @escaping (Item) -> Content) {
+        self.items = items
+        self.content = content
+    }
+    
     public var body: some View {
         VStack {
             GeometryReader { proxy in
