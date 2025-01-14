@@ -18,7 +18,7 @@ extension Array where Element: Identifiable {
 }
 
 @available(iOS 17.0, *)
-public struct StackedCardsView<Item: Identifiable, Content: View>: View {
+struct StackedCardsView<Item: Identifiable, Content: View>: View {
     var items: [Item]
     let content: (Item) -> Content
     
@@ -26,7 +26,7 @@ public struct StackedCardsView<Item: Identifiable, Content: View>: View {
     @State private var isRotationEnabled: Bool = true
     @State private var showsIndicator: Bool = false
 
-    public var body: some View {
+    var body: some View {
         VStack {
             GeometryReader { proxy in
                 let size = proxy.size
