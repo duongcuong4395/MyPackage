@@ -6,6 +6,15 @@
 //
 
 /*
+ extension Array where Element: Identifiable {
+     func zIndex(_ item: Element) -> CGFloat {
+         if let index = firstIndex(where: { $0.id == item.id }) {
+             return CGFloat(count) - CGFloat(index)
+         }
+         return .zero
+     }
+ }
+
  struct StackedCardsView<Item: Identifiable, Content: View>: View {
      var items: [Item]
      @State private var isRotationEnabled: Bool = true
@@ -28,6 +37,7 @@
                                          .rotationEffect(rotation(proxy: geometryProxy, rotation: isRotationEnabled ? 5 : 0))
                                          .offset(x: minX(geometryProxy))
                                          .offset(x: excessMinX(proxy: geometryProxy, offset: isRotationEnabled ? 8 : 10))
+                                     
                                  }
                                  .zIndex(items.zIndex(item)) // Áp dụng zIndex
                          }
@@ -68,5 +78,4 @@
          return .degrees(progress * rotation)
      }
  }
-
  */
