@@ -10,9 +10,9 @@ import SwiftUI
 @available(iOS 17.0, *)
 struct ScrollTransitionView<Item: Identifiable, Content: View>: View {
     @Environment(\.verticalSizeClass) var verticalSizeClass
-    var items: [Item]
-    var numberItemPerpage: Int = 1
-    let content: (Item) -> Content
+    public var items: [Item]
+    public var numberItemPerpage: Int = 1
+    public let content: (Item) -> Content
     
     
     
