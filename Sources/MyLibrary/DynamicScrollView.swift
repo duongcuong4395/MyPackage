@@ -17,7 +17,7 @@ public struct ScrollTransitionView<Item: Identifiable, Content: View>: View {
     
     
     
-    public init(items: [Item], axis: Axis.Set, numberItemPerpage: Int, content: @escaping (Item) -> Content) {
+    public init(items: [Item], axis: Axis.Set = .horizontal, numberItemPerpage: Int, content: @escaping (Item) -> Content) {
         self.items = items
         self.axis = axis
         self.numberItemPerpage = numberItemPerpage
