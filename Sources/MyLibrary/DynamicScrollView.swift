@@ -8,7 +8,7 @@
 import SwiftUI
 
 @available(iOS 17.0, *)
-struct ScrollTransitionView<Item: Identifiable, Content: View>: View {
+public struct ScrollTransitionView<Item: Identifiable, Content: View>: View {
     @Environment(\.verticalSizeClass) var verticalSizeClass
     public var items: [Item]
     public var numberItemPerpage: Int = 1
@@ -16,7 +16,7 @@ struct ScrollTransitionView<Item: Identifiable, Content: View>: View {
     
     
     
-    var body: some View {
+    public var body: some View {
         ScrollView(.horizontal) {
             HStack {
                 ForEach(items) { item in
