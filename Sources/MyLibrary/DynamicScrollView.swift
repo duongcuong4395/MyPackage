@@ -11,17 +11,21 @@ import SwiftUI
 public struct ScrollTransitionView<Item: Identifiable, Content: View>: View {
     @Environment(\.verticalSizeClass) var verticalSizeClass
     public var items: [Item]
+    public var axis: Axis.Set = .horizontal
     public var numberItemPerpage: Int = 1
     public let content: (Item) -> Content
     
-    public init(items: [Item], numberItemPerpage: Int, content: @escaping (Item) -> Content) {
+    
+    
+    public init(items: [Item], axis: Axis.Set, numberItemPerpage: Int, content: @escaping (Item) -> Content) {
         self.items = items
+        self.axis = axis
         self.numberItemPerpage = numberItemPerpage
         self.content = content
     }
     
     public var body: some View {
-        ScrollView(.horizontal) {
+        ScrollView(axis) {
             HStack {
                 ForEach(items) { item in
                     content(item)
