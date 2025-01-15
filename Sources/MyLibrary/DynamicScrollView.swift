@@ -8,7 +8,7 @@
 import SwiftUI
 
 @available(iOS 17.0, *)
-struct DynamicScrollView<Item: Identifiable, Content: View>: View {
+struct ScrollTransitionView<Item: Identifiable, Content: View>: View {
     @Environment(\.verticalSizeClass) var verticalSizeClass
     var items: [Item]
     var numberItemPerpage: Int = 1
@@ -41,6 +41,8 @@ struct DynamicScrollView<Item: Identifiable, Content: View>: View {
     }
 }
 
+// MARK: Example
+/*
 @available(iOS 17.0, *)
 struct PowerScrollView: View {
     @Environment(\.verticalSizeClass) var verticalSizeClass
@@ -87,24 +89,25 @@ struct PowerScrollView: View {
     }
 }
 
-@available(iOS 17.0, *)
-struct Item: Identifiable {
-    let id = UUID()
-    let color: Color
-}
-
-@available(iOS 17.0, *)
-struct MockData {
-    static let items: [Item] = [
-        Item(color: .brown),
-        Item(color: .purple),
-        Item(color: .indigo),
-        Item(color: .teal),
-        Item(color: .pink),
-        Item(color: .red),
-        Item(color: .blue),
-        Item(color: .green),
-        Item(color: .yellow),
-        Item(color: .orange)
-    ]
-}
+ @available(iOS 17.0, *)
+ struct Item: Identifiable {
+ let id = UUID()
+ let color: Color
+ }
+ 
+ @available(iOS 17.0, *)
+ struct MockData {
+ static let items: [Item] = [
+ Item(color: .brown),
+ Item(color: .purple),
+ Item(color: .indigo),
+ Item(color: .teal),
+ Item(color: .pink),
+ Item(color: .red),
+ Item(color: .blue),
+ Item(color: .green),
+ Item(color: .yellow),
+ Item(color: .orange)
+ ]
+ }
+ */
