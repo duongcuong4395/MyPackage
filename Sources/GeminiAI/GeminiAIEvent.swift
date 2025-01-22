@@ -9,7 +9,7 @@ import GoogleGenerativeAI
 import CoreData
 import SwiftUI
 
-public enum geminiAIVersion: String, CaseIterable {
+public enum GeminiAIVersion: String, Sendable, CaseIterable {
     case gemini_2_0_flash_exp = "gemini-2.0-flash-exp"
     case gemini_exp_1206 = "gemini-exp-1206"
     case gemini_2_0_flash_thinking_exp_01_21 = "gemini-2.0-flash-thinking-exp-01-21"
@@ -28,7 +28,7 @@ public protocol GeminiAIEvent {
 
 @available(iOS 15.0, *)
 public extension GeminiAIEvent {
-    func getModel(with model: GeminiAIModel, and version: geminiAIVersion) -> GenerativeModel {
+    func getModel(with model: GeminiAIModel, and version: GeminiAIVersion) -> GenerativeModel {
         return GenerativeModel(
             name: version.rawValue,
           // "gemini-1.5-flash-latest", // "gemini-1.5-pro-latest", // "gemini-1.5-flash-latest",
@@ -49,7 +49,7 @@ public extension GeminiAIEvent {
         )
     }
     
-    func checKeyExist(with version: geminiAIVersion) async -> Bool {
+    func checKeyExist(with version: GeminiAIVersion) async -> Bool {
         let (_, status, _) = await GeminiSend(prompt: "Test prompt", and: true, with: version)
         switch status {
         case .NotExistsKey, .ExistsKey, .SendReqestFail:
@@ -62,7 +62,7 @@ public extension GeminiAIEvent {
     // MARK: - New
     func GeminiSend(prompt: String
                     , and image: UIImage
-                    , with version: geminiAIVersion
+                    , with version: GeminiAIVersion
     ) async -> String {
         let modelKey = await getKey()
         guard modelKey.exists else { return "" }
@@ -86,7 +86,7 @@ public extension GeminiAIEvent {
     
     func GeminiSend(prompt: String
                     , with hasStream: Bool
-                    , and version: geminiAIVersion
+                    , and version: GeminiAIVersion
     ) async -> GeminiResponse {
         
         let modelKey = await getKey()
@@ -115,7 +115,7 @@ public extension GeminiAIEvent {
     }
     
     func GeminiSend(prompt: String, and hasStream: Bool
-                    , with version: geminiAIVersion
+                    , with version: GeminiAIVersion
     ) async -> (String, GeminiStatus, String) {
         let modelKey = await getKey()
         guard modelKey.exists else { return ("", .NotExistsKey, "") }
