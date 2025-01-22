@@ -10,9 +10,7 @@ let package = Package(
         .library(
             name: "MyLibrary",
             targets: ["MyLibrary"]),
-        .library(
-            name: "GeminiAI",
-            targets: ["GeminiAI"]),
+        
     ],
     dependencies: [
         .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.10.2")),
@@ -32,6 +30,7 @@ let package = Package(
             dependencies: [
                 .product(name: "GoogleGenerativeAI", package: "generative-ai-swift")
                         ]),
+        
 
     ]
 )
