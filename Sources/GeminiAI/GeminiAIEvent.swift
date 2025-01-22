@@ -9,6 +9,17 @@ import GoogleGenerativeAI
 import CoreData
 import SwiftUI
 
+public enum geminiAIVersion: String, CaseIterable {
+    case gemini_2_0_flash_exp = "gemini-2.0-flash-exp"
+    case gemini_exp_1206 = "gemini-exp-1206"
+    case gemini_2_0_flash_thinking_exp_01_21 = "gemini-2.0-flash-thinking-exp-01-21"
+    
+    case gemini_1_5_pro = "gemini-1.5-pro"
+    case gemini_1_5_flash = "gemini-1.5-flash"
+    case gemini_1_5_flash_8b = "gemini-1.5-flash-8b"
+    
+}
+
 // MARK: - For Event
 @available(iOS 15.0, *)
 public protocol GeminiAIEvent {
@@ -17,9 +28,10 @@ public protocol GeminiAIEvent {
 
 @available(iOS 15.0, *)
 public extension GeminiAIEvent {
-    func getModel(with model: GeminiAIModel) -> GenerativeModel {
+    func getModel(with model: GeminiAIModel, and version: geminiAIVersion) -> GenerativeModel {
         return GenerativeModel(
-          name:   "gemini-1.5-flash-latest", // "gemini-1.5-pro-latest", // "gemini-1.5-flash-latest",
+            name: version.rawValue,
+          // "gemini-1.5-flash-latest", // "gemini-1.5-pro-latest", // "gemini-1.5-flash-latest",
           apiKey:  model.valueItem,
           generationConfig: GenerationConfig(
             temperature: 1,
@@ -37,8 +49,8 @@ public extension GeminiAIEvent {
         )
     }
     
-    func checKeyExist() async -> Bool {
-        let (_, status, _) = await GeminiSend(prompt: "Test prompt", and: true)
+    func checKeyExist(with version: geminiAIVersion) async -> Bool {
+        let (_, status, _) = await GeminiSend(prompt: "Test prompt", and: true, with: version)
         switch status {
         case .NotExistsKey, .ExistsKey, .SendReqestFail:
             return false
@@ -50,10 +62,11 @@ public extension GeminiAIEvent {
     // MARK: - New
     func GeminiSend(prompt: String
                     , and image: UIImage
+                    , with version: geminiAIVersion
     ) async -> String {
         let modelKey = await getKey()
         guard modelKey.exists else { return "" }
-        let model = getModel(with: modelKey.model)
+        let model = getModel(with: modelKey.model, and: version)
         let _ = model.startChat(history: [])
 
         do {
@@ -73,11 +86,12 @@ public extension GeminiAIEvent {
     
     func GeminiSend(prompt: String
                     , with hasStream: Bool
+                    , and version: geminiAIVersion
     ) async -> GeminiResponse {
         
         let modelKey = await getKey()
         guard modelKey.exists else { return GeminiResponse(text: "", status: .NotExistsKey)}
-        let model = getModel(with: modelKey.model)
+        let model = getModel(with: modelKey.model, and: version)
         let chat = model.startChat(history: [])
 
         do {
@@ -100,11 +114,13 @@ public extension GeminiAIEvent {
         }
     }
     
-    func GeminiSend(prompt: String, and hasStream: Bool) async -> (String, GeminiStatus, String) {
+    func GeminiSend(prompt: String, and hasStream: Bool
+                    , with version: geminiAIVersion
+    ) async -> (String, GeminiStatus, String) {
         let modelKey = await getKey()
         guard modelKey.exists else { return ("", .NotExistsKey, "") }
         
-        let model = getModel(with: modelKey.model)
+        let model = getModel(with: modelKey.model, and: version)
         let chat = model.startChat(history: [])
         
         do {
