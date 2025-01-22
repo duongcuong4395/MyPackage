@@ -18,7 +18,7 @@ public enum GeminiAIVersion: String, Sendable, CaseIterable {
     case gemini_1_5_flash = "gemini-1.5-flash"
     case gemini_1_5_flash_8b = "gemini-1.5-flash-8b"
     
-    var name: String {
+    public var name: String {
         switch self {
         case .gemini_2_0_flash_exp:
             return "2.0 Flash Experimental"
