@@ -50,10 +50,10 @@ public extension GeminiAIEvent {
     // MARK: - New
     func GeminiSend(prompt: String
                     , and image: UIImage
-                    , withKeyFrom keyString: String
     ) async -> String {
-        let modelKey = GeminiAIModel(itemKey: "key", valueItem: keyString)
-        let model = getModel(with: modelKey)
+        let modelKey = await getKey()
+        guard modelKey.exists else { return "" }
+        let model = getModel(with: modelKey.model)
         let _ = model.startChat(history: [])
 
         do {
