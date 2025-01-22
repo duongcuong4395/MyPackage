@@ -26,12 +26,12 @@ public struct GeminiAIModel: Codable {
         case valueItem = "valueItem"
     }
     
-    init() {
+    public init() {
         self.itemKey = ""
         self.valueItem = ""
     }
     
-    init(itemKey: String, valueItem: String) {
+    public init(itemKey: String, valueItem: String) {
         self.itemKey = itemKey
         self.valueItem = valueItem
     }
