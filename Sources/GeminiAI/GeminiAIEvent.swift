@@ -11,13 +11,13 @@ import SwiftUI
 
 // MARK: - For Event
 @available(iOS 15.0, *)
-protocol GeminiAIEvent {
+public protocol GeminiAIEvent {
     func getKey() async -> (exists: Bool, model: GeminiAIModel)
 }
 
 @available(iOS 15.0, *)
-extension GeminiAIEvent {
-    public func getModel(with model: GeminiAIModel) -> GenerativeModel {
+public extension GeminiAIEvent {
+    func getModel(with model: GeminiAIModel) -> GenerativeModel {
         return GenerativeModel(
           name:   "gemini-1.5-flash-latest", // "gemini-1.5-pro-latest", // "gemini-1.5-flash-latest",
           apiKey:  model.valueItem,
@@ -37,7 +37,7 @@ extension GeminiAIEvent {
         )
     }
     
-    public func checKeyExist() async -> Bool {
+    func checKeyExist() async -> Bool {
         let (_, status, _) = await GeminiSend(prompt: "Test prompt", and: true)
         switch status {
         case .NotExistsKey, .ExistsKey, .SendReqestFail:
@@ -48,7 +48,7 @@ extension GeminiAIEvent {
     }
     
     // MARK: - New
-    public func GeminiSend(prompt: String
+    func GeminiSend(prompt: String
                     , and image: UIImage
                     , withKeyFrom keyString: String
     ) async -> String {
@@ -71,7 +71,7 @@ extension GeminiAIEvent {
         }
     }
     
-    public func GeminiSend(prompt: String
+    func GeminiSend(prompt: String
                     , and hasStream: Bool
     ) async -> (String, GeminiStatus) {
         
@@ -100,7 +100,7 @@ extension GeminiAIEvent {
         }
     }
     
-    public func GeminiSend(prompt: String, and hasStream: Bool) async -> (String, GeminiStatus, String) {
+    func GeminiSend(prompt: String, and hasStream: Bool) async -> (String, GeminiStatus, String) {
         let modelKey = await getKey()
         guard modelKey.exists else { return ("", .NotExistsKey, "") }
         
