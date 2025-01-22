@@ -18,6 +18,23 @@ public enum GeminiAIVersion: String, Sendable, CaseIterable {
     case gemini_1_5_flash = "gemini-1.5-flash"
     case gemini_1_5_flash_8b = "gemini-1.5-flash-8b"
     
+    var name: String {
+        switch self {
+        case .gemini_2_0_flash_exp:
+            return "2.0 Flash Experimental"
+        case .gemini_exp_1206:
+            return "2.0 Experimental 1206"
+        case .gemini_2_0_flash_thinking_exp_01_21:
+            return "2.0 Flash Thinking"
+        case .gemini_1_5_pro:
+            return "1.5 Pro"
+        case .gemini_1_5_flash:
+            return "1.5 Flash"
+        case .gemini_1_5_flash_8b:
+            return "1.5 Flash 8B"
+        }
+    }
+    
 }
 
 // MARK: - For Event
