@@ -72,7 +72,7 @@ public extension GeminiAIEvent {
     }
     
     func GeminiSend(prompt: String
-                    , and hasStream: Bool
+                    , with hasStream: Bool
     ) async -> GeminiResponse {
         
         let modelKey = await getKey()

@@ -17,8 +17,8 @@ public enum GeminiStatus: Sendable {
 }
 
 public struct GeminiResponse: Sendable {
-    let text: String
-    let status: GeminiStatus
+    public var text: String
+    public var status: GeminiStatus
 }
 
 // MARK: - For model
