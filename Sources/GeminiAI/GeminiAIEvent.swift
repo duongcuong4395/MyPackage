@@ -73,10 +73,10 @@ public extension GeminiAIEvent {
     
     func GeminiSend(prompt: String
                     , and hasStream: Bool
-    ) async -> (String, GeminiStatus) {
+    ) async -> GeminiResponse {
         
         let modelKey = await getKey()
-        guard modelKey.exists else { return ("", .NotExistsKey)}
+        guard modelKey.exists else { return GeminiResponse(text: "", status: .NotExistsKey)}
         let model = getModel(with: modelKey.model)
         let chat = model.startChat(history: [])
 
@@ -89,14 +89,14 @@ public extension GeminiAIEvent {
                         result += text
                     }
                 }
-                return (result, .Success)
+                return GeminiResponse(text: result, status: .Success)
             } else {
                 let response = try await chat.sendMessage(prompt)
                 let _ = try await model.countTokens(prompt)
-                return (response.text ?? "Empty", .Success)
+                return GeminiResponse(text: response.text ?? "Empty", status: .Success)
             }
         } catch {
-            return ("Data not found", .SendReqestFail)
+            return GeminiResponse(text: "Data not found", status: .SendReqestFail)
         }
     }
     
