@@ -13,6 +13,10 @@ let package = Package(
         .library(
             name: "GeminiAI",
             targets: ["GeminiAI"]),
+        .library(
+            name: "RoutablePage",
+            targets: ["RoutablePage"]),
+        
     ],
     dependencies: [
         .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.10.2")),
@@ -32,6 +36,9 @@ let package = Package(
             dependencies: [
                 .product(name: "GoogleGenerativeAI", package: "generative-ai-swift")
                         ]),
+        .target(
+            name: "RoutablePage",
+            dependencies: []),
 
     ]
 )
