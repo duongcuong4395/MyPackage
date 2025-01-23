@@ -33,6 +33,7 @@ public struct GenericRoutePath<Page: RoutablePage>: Hashable {
 }
 
 // MARK: GenericRouter
+@available(iOS 15.0, *)
 public class GenericRouter<Page: RoutablePage>: ObservableObject {
     @Published public var currentRoute: GenericRoutePath<Page> = GenericRoutePath(Page.allCases.first!)
     
@@ -54,10 +55,11 @@ public class GenericRouter<Page: RoutablePage>: ObservableObject {
 
 // MARK: RouterFactory
 /// Quản lý các instance
+@available(iOS 15.0, *)
 public class RouterFactory {
-    private static var routers: [String: Any] = [:]
+    @MainActor private static var routers: [String: Any] = [:]
     
-    public static func sharedRouter<Page: RoutablePage>(for type: Page.Type) -> GenericRouter<Page> {
+    @MainActor public static func sharedRouter<Page: RoutablePage>(for type: Page.Type) -> GenericRouter<Page> {
         let key = String(describing: type)
         if let router = routers[key] as? GenericRouter<Page> {
             return router
