@@ -88,24 +88,23 @@ public protocol AIChatEvent: AnyObject {
             }
             let aiMessage = ChatMessage(content: response.text ?? "", isUser: false)
             chat?.history.append(aiMessage.toModelContent())
-            print("=== chat", chat?.history ?? "")
-            messages.append(contentsOf: [aiMessage])
+            //messages.append(contentsOf: [aiMessage])
+            add(aiMessage)
         }
         
         
         func sendMessage(_ text: String) async {
             guard let chat = chat else { return }
-            
+            let textSend = text
             // Gửi tin nhắn của người dùng
-            let userMessage = ChatMessage(content: text, isUser: true)
+            let userMessage = ChatMessage(content: textSend, isUser: true)
             //messages.append(userMessage)
             add(userMessage)
             do {
                 // Nhận phản hồi từ AI
                 
-                let response = try await chat.sendMessage(text)
+                let response = try await chat.sendMessage(textSend)
                 let aiMessage = ChatMessage(content: response.text ?? "", isUser: false)
-                print("=== chat", chat.history)
                 //messages.append(aiMessage)
                 add(aiMessage)
             } catch {
