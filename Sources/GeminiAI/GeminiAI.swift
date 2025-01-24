@@ -11,11 +11,17 @@ import GoogleGenerativeAI
 
 @available(iOS 15.0, *)
 public struct ChatMessage: Identifiable {
-    public let id = UUID()
-    var content: String
-    let isUser: Bool
-    var image: UIImage? = nil
+    public var id = UUID()
+    public var content: String
+    public var isUser: Bool
+    public var image: UIImage? = nil
     
+    public init(content: String, isUser: Bool, image: UIImage? = nil) {
+     
+        self.content = content
+        self.isUser = isUser
+        self.image = image
+    }
     var swiftUIImage: Image? {
         if let uiImage = image {
             return Image(uiImage: uiImage)
@@ -23,7 +29,7 @@ public struct ChatMessage: Identifiable {
         return nil
     }
     
-    func toModelContent() -> ModelContent {
+    public func toModelContent() -> ModelContent {
         //ModelContent(text: content, author: isUser ? "user" : "bot")
         return ModelContent(role: isUser ? "user" : "model", parts: content)
     }
