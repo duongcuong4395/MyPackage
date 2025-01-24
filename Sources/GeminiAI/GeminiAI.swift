@@ -107,7 +107,7 @@ public protocol AIChatEvent: AnyObject {
                 let aiMessage = ChatMessage(content: response.text ?? "", isUser: false)
                 print("=== chat", chat.history)
                 //messages.append(aiMessage)
-                add(userMessage)
+                add(aiMessage)
             } catch {
                 print("Error sending message: \(error)")
             }
