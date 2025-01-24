@@ -42,7 +42,8 @@ public protocol AIChatEvent: AnyObject {
     var history: [ModelContent] { get set }
     var messages: [ChatMessage] { get set }
     func getKey() -> GeminiAI.GeminiAIModel
-    func userSend(message: String)
+    //func userSend(message: String)
+    func add(_ message: ChatMessage)
 }
 
     @available(iOS 15.0, *)
@@ -96,16 +97,17 @@ public protocol AIChatEvent: AnyObject {
             guard let chat = chat else { return }
             
             // Gửi tin nhắn của người dùng
-            //let userMessage = ChatMessage(content: text, isUser: true)
+            let userMessage = ChatMessage(content: text, isUser: true)
             //messages.append(userMessage)
-            userSend(message: text)
+            add(userMessage)
             do {
                 // Nhận phản hồi từ AI
                 
                 let response = try await chat.sendMessage(text)
                 let aiMessage = ChatMessage(content: response.text ?? "", isUser: false)
                 print("=== chat", chat.history)
-                messages.append(aiMessage)
+                //messages.append(aiMessage)
+                add(userMessage)
             } catch {
                 print("Error sending message: \(error)")
             }
