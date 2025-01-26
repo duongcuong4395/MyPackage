@@ -50,7 +50,7 @@ public struct ChatMessage: Equatable, Identifiable {
         self.isUser = isUser
         self.image = image
     }
-    var swiftUIImage: Image? {
+    public var swiftUIImage: Image? {
         if let uiImage = image {
             return Image(uiImage: uiImage)
         }
