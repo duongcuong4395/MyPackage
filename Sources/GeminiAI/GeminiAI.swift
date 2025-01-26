@@ -70,7 +70,7 @@ public protocol AIChatEvent: AnyObject {
     func getKey() -> GeminiAI.GeminiAIModel
     func add(_ message: ChatMessage)
     
-    func update(of itemID: UUID, by content: String)
+    func update(message: ChatMessage, by content: String)
     
     func resetHistory()
 }
@@ -161,7 +161,7 @@ public extension AIChatEvent {
                 for try await chunk in responseStream {
                     if let text = chunk.text {
                         fullResponse += text
-                        update(of: aiMessage.id, by: fullResponse)
+                        update(message: aiMessage, by: fullResponse)
                         /*
                         await MainActor.run {
                             // Cập nhật phản hồi từng phần
