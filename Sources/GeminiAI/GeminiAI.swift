@@ -42,19 +42,18 @@ public struct ChatMessage: Equatable, Identifiable {
     public var id = UUID()
     public var content: String
     public var isUser: Bool
-    public var image: UIImage? = nil
+    public var images: [UIImage] = []
     
-    public init(content: String, isUser: Bool, image: UIImage? = nil) {
+    public init(content: String, isUser: Bool, images: [UIImage]) {
      
         self.content = content
         self.isUser = isUser
-        self.image = image
+        self.images = images
     }
-    public var swiftUIImage: Image? {
-        if let uiImage = image {
+    public var swiftUIImages: [Image] {
+        return images.map { uiImage in
             return Image(uiImage: uiImage)
         }
-        return nil
     }
     
     public func toModelContent() -> ModelContent {
