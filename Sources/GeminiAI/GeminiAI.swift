@@ -44,7 +44,7 @@ public struct ChatMessage: Equatable, Identifiable {
     public var isUser: Bool
     public var images: [UIImage] = []
     
-    public init(content: String, isUser: Bool, images: [UIImage]) {
+    public init(content: String, isUser: Bool, images: [UIImage] = []) {
      
         self.content = content
         self.isUser = isUser
