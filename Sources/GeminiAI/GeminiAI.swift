@@ -38,6 +38,12 @@ public enum GeminiAIVersion: String, Sendable, CaseIterable {
 }
 
 @available(iOS 15.0, *)
+public struct AIImage: Identifiable {
+    public var id = UUID()
+    public var image: Image
+}
+
+@available(iOS 15.0, *)
 public struct ChatMessage: Equatable, Identifiable {
     public var id = UUID()
     public var content: String
@@ -50,9 +56,9 @@ public struct ChatMessage: Equatable, Identifiable {
         self.isUser = isUser
         self.images = images
     }
-    public var swiftUIImages: [Image] {
+    public var swiftUIImages: [AIImage] {
         return images.map { uiImage in
-            return Image(uiImage: uiImage)
+            return AIImage(image: Image(uiImage: uiImage)) 
         }
     }
     
