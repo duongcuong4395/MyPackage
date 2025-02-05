@@ -225,6 +225,7 @@ public extension AIChatEvent {
                 for try await chunk in contentStream {
                   if let text = chunk.text {
                       fullResponse += text
+                      print("=== fullResponse", fullResponse)
                       update(message: aiMessage, by: fullResponse)
                       
                   }
@@ -234,9 +235,10 @@ public extension AIChatEvent {
         } else {
             let response = try await model.generateContent(prompt, images[0])
             if let text = response.text {
-              print(text)
+              print("=== response", text)
             }
             let aiMessage = ChatMessage(content: response.text ?? "", isUser: false)
+            print("=== aiMessage", aiMessage)
             addChatHistory(by: aiMessage)
         }
         
