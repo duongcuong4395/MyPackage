@@ -78,6 +78,7 @@ public protocol AIChatEvent: AnyObject {
     func update(message: ChatMessage, by content: String)
     
     func resetHistory()
+    func addChatHistory(by message: ChatMessage)
 }
 
 @available(iOS 15.0, *)
@@ -110,7 +111,7 @@ public extension AIChatEvent {
           ]
         )
     }
-    
+    /*
     func chat(with message: String, and image: UIImage, of version: GeminiAIVersion) async throws {
         let modelKey = getKey()
         
@@ -145,10 +146,12 @@ public extension AIChatEvent {
             print("Error sending message: \(error)")
         }
     }
+    */
 }
 
 @available(iOS 15.0, *)
 public extension AIChatEvent {
+    // MARK: Send Text
     func sendMess(with prompt: String, has stream: Bool = false) async {
         guard let chat = chat else { return }
         
@@ -167,15 +170,6 @@ public extension AIChatEvent {
                     if let text = chunk.text {
                         fullResponse += text
                         update(message: aiMessage, by: fullResponse)
-                        /*
-                        await MainActor.run {
-                            // Cập nhật phản hồi từng phần
-                            fullResponse += text
-                            if let index = self.messages.firstIndex(where: { $0.id == aiMessage.id }) {
-                                self.messages[index].content = fullResponse
-                            }
-                        }
-                        */
                     }
                 }
             } catch {
@@ -190,6 +184,62 @@ public extension AIChatEvent {
                 print("Error sending message: \(error)")
             }
         }
+    }
+    
+    // MARK: Send Text And Images
+    func sendMess(with prompt: String, and images: [UIImage], has stream: Bool = false, of version: GeminiAIVersion) async throws {
+        guard chat != nil else { return }
+        let modelKey = getKey()
+        
+        let userMessage = ChatMessage(content: prompt, isUser: true, images: images)
+        add(userMessage)
+        
+        let model = getModel(with: modelKey, and: version)
+        if stream {
+            var fullResponse = ""
+            let aiMessage = ChatMessage(content: "", isUser: false)
+            add(aiMessage)
+            
+            if images.count == 1 {
+                let contentStream = model.generateContentStream(prompt, images[0])
+                for try await chunk in contentStream {
+                  if let text = chunk.text {
+                      fullResponse += text
+                      update(message: aiMessage, by: fullResponse)
+                      
+                  }
+                }
+            } else if images.count == 2 {
+                let contentStream = model.generateContentStream(prompt, images[0], images[1])
+                for try await chunk in contentStream {
+                  if let text = chunk.text {
+                      fullResponse += text
+                      update(message: aiMessage, by: fullResponse)
+                      
+                  }
+                }
+            }
+            else if images.count == 3 {
+               let contentStream = model.generateContentStream(prompt, images[0], images[1], images[2])
+                
+                for try await chunk in contentStream {
+                  if let text = chunk.text {
+                      fullResponse += text
+                      update(message: aiMessage, by: fullResponse)
+                      
+                  }
+                }
+           }
+            addChatHistory(by: aiMessage)
+        } else {
+            let response = try await model.generateContent(prompt, images[0])
+            if let text = response.text {
+              print(text)
+            }
+            let aiMessage = ChatMessage(content: response.text ?? "", isUser: false)
+            addChatHistory(by: aiMessage)
+        }
+        
     }
 }
 
