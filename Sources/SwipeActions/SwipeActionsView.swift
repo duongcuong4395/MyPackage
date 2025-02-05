@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-@available(iOS 16.0, *)
+@available(iOS 17.0, *)
 public struct DemoSwipeActionsView: View {
     public init() {}
     
