@@ -22,6 +22,9 @@ let package = Package(
         .library(
             name: "WebView",
             targets: ["WebView"]),
+        .library(
+            name: "DeviceRotation",
+            targets: ["DeviceRotation"]),
         
         
     ],
@@ -51,6 +54,9 @@ let package = Package(
             dependencies: []),
         .target(
             name: "WebView",
+            dependencies: []),
+        .target(
+            name: "DeviceRotation",
             dependencies: []),
         
         

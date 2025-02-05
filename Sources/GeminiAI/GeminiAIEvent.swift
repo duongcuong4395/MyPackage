@@ -10,7 +10,7 @@ import CoreData
 import SwiftUI
 
 
-
+/*
 // MARK: - For Event
 @available(iOS 15.0, *)
 public protocol GeminiAIEvent {
@@ -135,3 +135,4 @@ public extension GeminiAIEvent {
     }
 
 }
+*/

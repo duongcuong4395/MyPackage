@@ -7,7 +7,7 @@
 
 import Foundation
 
-
+/*
 // MARK: - Gemini Status
 public enum GeminiStatus: Sendable {
     case NotExistsKey
@@ -15,11 +15,14 @@ public enum GeminiStatus: Sendable {
     case SendReqestFail
     case Success
 }
+*/
 
+/*
 public struct GeminiResponse: Sendable {
     public var text: String
     public var status: GeminiStatus
 }
+*/
 
 // MARK: - For model
 public struct GeminiAIModel: Codable {
