@@ -16,6 +16,10 @@ let package = Package(
         .library(
             name: "RoutablePage",
             targets: ["RoutablePage"]),
+        .library(
+            name: "SwipeActions",
+            targets: ["SwipeActions"]),
+        
         
     ],
     dependencies: [
@@ -39,7 +43,10 @@ let package = Package(
         .target(
             name: "RoutablePage",
             dependencies: []),
-
+        .target(
+            name: "SwipeActions",
+            dependencies: []),
+        
     ]
 )
 
