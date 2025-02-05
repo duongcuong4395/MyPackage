@@ -111,42 +111,6 @@ public extension AIChatEvent {
           ]
         )
     }
-    /*
-    func chat(with message: String, and image: UIImage, of version: GeminiAIVersion) async throws {
-        let modelKey = getKey()
-        
-        let model = getModel(with: modelKey, and: version)
-        
-        let response = try await model.generateContent(message, image)
-        if let text = response.text {
-          print(text)
-        }
-        let aiMessage = ChatMessage(content: response.text ?? "", isUser: false)
-        chat?.history.append(aiMessage.toModelContent())
-        //messages.append(contentsOf: [aiMessage])
-        add(aiMessage)
-    }
-    
-    
-    func sendMessage(_ text: String) async {
-        guard let chat = chat else { return }
-        let textSend = text
-        // Gửi tin nhắn của người dùng
-        let userMessage = ChatMessage(content: textSend, isUser: true)
-        //messages.append(userMessage)
-        add(userMessage)
-        do {
-            // Nhận phản hồi từ AI
-            
-            let response = try await chat.sendMessage(textSend)
-            let aiMessage = ChatMessage(content: response.text ?? "", isUser: false)
-            //messages.append(aiMessage)
-            add(aiMessage)
-        } catch {
-            print("Error sending message: \(error)")
-        }
-    }
-    */
 }
 
 @available(iOS 15.0, *)

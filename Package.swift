@@ -19,6 +19,9 @@ let package = Package(
         .library(
             name: "SwipeActions",
             targets: ["SwipeActions"]),
+        .library(
+            name: "WebView",
+            targets: ["WebView"]),
         
         
     ],
@@ -46,6 +49,10 @@ let package = Package(
         .target(
             name: "SwipeActions",
             dependencies: []),
+        .target(
+            name: "WebView",
+            dependencies: []),
+        
         
     ]
 )
