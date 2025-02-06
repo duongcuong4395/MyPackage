@@ -46,7 +46,7 @@ public struct AIImage: Identifiable {
 @available(iOS 15.0, *)
 public struct ChatMessage: Equatable, Identifiable {
     public var id = UUID()
-    public var content: String
+    public var content: String // String
     public var isUser: Bool
     public var images: [UIImage] = []
     
@@ -64,6 +64,10 @@ public struct ChatMessage: Equatable, Identifiable {
     
     public func toModelContent() -> ModelContent {
         return ModelContent(role: isUser ? "user" : "model", parts: content)
+    }
+    
+    public var localizedContent: LocalizedStringKey {
+        return LocalizedStringKey(content)
     }
 }
 
