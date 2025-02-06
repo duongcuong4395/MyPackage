@@ -119,12 +119,17 @@ public extension AIChatEvent {
 
 @available(iOS 15.0, *)
 public extension AIChatEvent {
+    func addClientContent(with prompt: String, and images: [UIImage]) {
+        let userMessage = images.count > 0 ? ChatMessage(content: prompt, isUser: true, images: images) : ChatMessage(content: prompt, isUser: true)
+        add(userMessage)
+    }
+    
     // MARK: Send Text
     func sendMess(with prompt: String, has stream: Bool = false) async {
         guard let chat = chat else { return }
         
-        let userMessage = ChatMessage(content: prompt, isUser: true)
-        add(userMessage)
+        //let userMessage = ChatMessage(content: prompt, isUser: true)
+        //add(userMessage)
         
         if stream {
             var fullResponse = ""
@@ -159,8 +164,8 @@ public extension AIChatEvent {
         guard chat != nil else { return }
         let modelKey = getKey()
         
-        let userMessage = ChatMessage(content: prompt, isUser: true, images: images)
-        add(userMessage)
+        // let userMessage = ChatMessage(content: prompt, isUser: true, images: images)
+        // add(userMessage)
         
         let model = getModel(with: modelKey, and: version)
         if stream {
