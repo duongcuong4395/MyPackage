@@ -221,7 +221,10 @@ public extension AIChatEvent {
 @available(iOS 16.0, *)
 public extension AIChatEvent {
     
-    
+    func add(_ message: ChatMessage) {}
+    func update(message: ChatMessage, by content: String) {}
+    func resetHistory() {}
+    func addChatHistory(by message: ChatMessage) {}
 }
 
 
