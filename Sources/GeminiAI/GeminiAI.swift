@@ -222,7 +222,8 @@ public extension AIChatEvent {
 public extension AIChatEvent {
     
     func add(_ message: ChatMessage) {
-        print("=== Add from package")
+        //print("=== Add from package")
+        
     }
     func update(message: ChatMessage, by content: String) {}
     func resetHistory() {}
