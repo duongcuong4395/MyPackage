@@ -118,7 +118,7 @@ public extension AIChatEvent {
 
 @available(iOS 16.0, *)
 public extension AIChatEvent {
-    @MainActor func clientSend(with prompt: String
+    func clientSend(with prompt: String
                     , and images: [UIImage]) {
         
         let userMessage = images.count > 0 ? ChatMessage(content: prompt, isUser: true, images: images) : ChatMessage(content: prompt, isUser: true)
