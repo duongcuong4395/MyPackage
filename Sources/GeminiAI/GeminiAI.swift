@@ -43,7 +43,7 @@ public struct AIImage: Identifiable {
     public var image: Image
 }
 
-@available(iOS 15.0, *)
+@available(iOS 16.0, *)
 public struct ChatMessage: Equatable, Identifiable {
     public var id = UUID()
     public var content: String // String
@@ -71,21 +71,20 @@ public struct ChatMessage: Equatable, Identifiable {
     }
 }
 
-@available(iOS 15.0, *)
+@available(iOS 16.0, *)
 public protocol AIChatEvent: AnyObject {
     var chat: Chat? { get set } // Phiên chat
     var history: [ModelContent] { get set }
     var messages: [ChatMessage] { get set }
     func getKey() -> GeminiAI.GeminiAIModel
-    func add(_ message: ChatMessage)
     
-    func update(message: ChatMessage, by content: String)
-    
-    func resetHistory()
-    func addChatHistory(by message: ChatMessage)
+    // func add(_ message: ChatMessage)
+    // func update(message: ChatMessage, by content: String)
+    // func resetHistory()
+    // func addChatHistory(by message: ChatMessage)
 }
 
-@available(iOS 15.0, *)
+@available(iOS 16.0, *)
 public extension AIChatEvent {
     func initializeChat(for schema: Schema? = nil) {
         if chat == nil {
@@ -117,9 +116,11 @@ public extension AIChatEvent {
     }
 }
 
-@available(iOS 15.0, *)
+@available(iOS 16.0, *)
 public extension AIChatEvent {
-    func clientSend(with prompt: String, and images: [UIImage]) {
+    @MainActor func clientSend(with prompt: String
+                    , and images: [UIImage]) {
+        
         let userMessage = images.count > 0 ? ChatMessage(content: prompt, isUser: true, images: images) : ChatMessage(content: prompt, isUser: true)
         add(userMessage)
     }
@@ -127,9 +128,6 @@ public extension AIChatEvent {
     // MARK: Send Text
     func aiResponse(with prompt: String, has stream: Bool = false) async {
         guard let chat = chat else { return }
-        
-        //let userMessage = ChatMessage(content: prompt, isUser: true)
-        //add(userMessage)
         
         if stream {
             var fullResponse = ""
@@ -160,12 +158,14 @@ public extension AIChatEvent {
     }
     
     // MARK: Send Text And Images
-    func aiResponse(with prompt: String, and images: [UIImage], has stream: Bool = false, of version: GeminiAIVersion) async throws {
+    
+    func aiResponse(with prompt: String
+                    , and images: [UIImage]
+                    , has stream: Bool = false
+                    , of version: GeminiAIVersion) async throws {
+        
         guard chat != nil else { return }
         let modelKey = getKey()
-        
-        // let userMessage = ChatMessage(content: prompt, isUser: true, images: images)
-        // add(userMessage)
         
         let model = getModel(with: modelKey, and: version)
         if stream {
@@ -216,6 +216,18 @@ public extension AIChatEvent {
         }
         
     }
+}
+
+@available(iOS 16.0, *)
+public extension AIChatEvent {
+    
+    func add(_ message: ChatMessage) {
+        print("=== Add from package")
+        messages.append(contentsOf: [message])
+    }
+    func update(message: ChatMessage, by content: String) {}
+    func resetHistory() {}
+    func addChatHistory(by message: ChatMessage) {}
 }
 
 
