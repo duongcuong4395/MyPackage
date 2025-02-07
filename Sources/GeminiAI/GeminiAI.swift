@@ -78,10 +78,10 @@ public protocol AIChatEvent: AnyObject {
     var messages: [ChatMessage] { get set }
     func getKey() -> GeminiAI.GeminiAIModel
     
-    // func add(_ message: ChatMessage)
-    // func update(message: ChatMessage, by content: String)
-    // func resetHistory()
-    // func addChatHistory(by message: ChatMessage)
+    func add(_ message: ChatMessage)
+    func update(message: ChatMessage, by content: String)
+    func resetHistory()
+    func addChatHistory(by message: ChatMessage)
 }
 
 @available(iOS 16.0, *)
@@ -221,13 +221,7 @@ public extension AIChatEvent {
 @available(iOS 16.0, *)
 public extension AIChatEvent {
     
-    func add(_ message: ChatMessage) {
-        
-        //messages.append(contentsOf: [message])
-    }
-    func update(message: ChatMessage, by content: String) {}
-    func resetHistory() {}
-    func addChatHistory(by message: ChatMessage) {}
+    
 }
 
 
