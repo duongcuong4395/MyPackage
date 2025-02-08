@@ -90,6 +90,8 @@ public protocol AIChatEvent: AnyObject {
     func remove(image: UIImage)
     
     func eventFrom(aiResponse: ChatMessage)
+    
+    func resetSuggestIdea()
 }
 
 @available(iOS 16.0, *)
@@ -234,6 +236,8 @@ public extension AIChatEvent {
     func resetHistory() {}
     func addChatHistory(by message: ChatMessage) {}
     func remove(image: UIImage) {}
+    
+    func resetSuggestIdea() {}
 }
 
 
