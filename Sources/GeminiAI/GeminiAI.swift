@@ -71,6 +71,11 @@ public struct ChatMessage: Equatable, Identifiable {
     }
 }
 
+public enum RequestBy: String {
+    case Client
+    case System
+}
+
 @available(iOS 16.0, *)
 public protocol AIChatEvent: AnyObject {
     var chat: Chat? { get set } // Phiên chat
@@ -92,6 +97,10 @@ public protocol AIChatEvent: AnyObject {
     func eventFrom(aiResponse: ChatMessage)
     
     func resetSuggestIdea()
+    func chat(by owner: RequestBy, with prompt: String
+              , and images: [UIImage]
+              , has stream: Bool
+              , of versionAI: GeminiAIVersion) async throws
 }
 
 @available(iOS 16.0, *)
@@ -238,6 +247,11 @@ public extension AIChatEvent {
     func remove(image: UIImage) {}
     
     func resetSuggestIdea() {}
+    
+    func chat(by owner: RequestBy, with prompt: String
+              , and images: [UIImage] = []
+              , has stream: Bool = false
+              , of versionAI: GeminiAIVersion = .gemini_2_0_flash_exp) async throws {}
 }
 
 
