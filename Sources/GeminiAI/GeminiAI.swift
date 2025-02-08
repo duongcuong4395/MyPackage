@@ -77,6 +77,7 @@ public protocol AIChatEvent: AnyObject {
     var history: [ModelContent] { get set }
     var messages: [ChatMessage] { get set }
     var imagesSelected: [UIImage] { get set }
+    var promptsSuggest: [String] { get set }
     
     func getKey() -> GeminiAI.GeminiAIModel
     
@@ -85,6 +86,7 @@ public protocol AIChatEvent: AnyObject {
     func resetHistory()
     func addChatHistory(by message: ChatMessage)
     
+    func remove(image: UIImage)
     
     func eventFrom(aiResponse: ChatMessage)
 }
@@ -230,6 +232,7 @@ public extension AIChatEvent {
     func update(message: ChatMessage, by content: String) {}
     func resetHistory() {}
     func addChatHistory(by message: ChatMessage) {}
+    func remove(image: UIImage) {}
 }
 
 
