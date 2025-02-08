@@ -74,6 +74,7 @@ public struct ChatMessage: Equatable, Identifiable {
 @available(iOS 16.0, *)
 public protocol AIChatEvent: AnyObject {
     var chat: Chat? { get set } // Phiên chat
+    var inputText: String { get set }
     var history: [ModelContent] { get set }
     var messages: [ChatMessage] { get set }
     var imagesSelected: [UIImage] { get set }
