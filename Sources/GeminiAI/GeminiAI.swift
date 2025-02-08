@@ -256,8 +256,3 @@ public extension AIChatEvent {
               , has stream: Bool = false
               , of versionAI: GeminiAIVersion = .gemini_2_0_flash_exp) async throws {}
 }
-
-
-
-
-

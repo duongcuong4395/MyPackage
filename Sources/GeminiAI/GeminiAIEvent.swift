@@ -10,26 +10,27 @@ import CoreData
 import SwiftUI
 
 
-/*
-// MARK: - For Event
-@available(iOS 15.0, *)
-public protocol GeminiAIEvent {
-    func getKey() async -> (exists: Bool, model: GeminiAIModel)
+@available(iOS 16.0, *)
+public protocol ChatSession {
+    var chat: Chat? { get set }
+    func initializeChat(for schema: Schema?)
+    func getKey() -> GeminiAI.GeminiAIModel
+    func getModel(with model: GeminiAIModel, and version: GeminiAIVersion, and schema: Schema?) -> GenerativeModel
 }
 
-@available(iOS 15.0, *)
-public extension GeminiAIEvent {
-    func getModel(with model: GeminiAIModel, and version: GeminiAIVersion) -> GenerativeModel {
+@available(iOS 16.0, *)
+public extension ChatSession {
+    func getModel(with model: GeminiAIModel, and version: GeminiAIVersion, and schema: Schema? = nil) -> GenerativeModel {
         return GenerativeModel(
             name: version.rawValue,
-          // "gemini-1.5-flash-latest", // "gemini-1.5-pro-latest", // "gemini-1.5-flash-latest",
           apiKey:  model.valueItem,
           generationConfig: GenerationConfig(
             temperature: 1,
             topP: 0.95,
             topK: 64,
             maxOutputTokens: 1048576, //8192,
-            responseMIMEType: "text/plain"
+            responseMIMEType: (schema != nil) ? "application/json" : "text/plain"
+            , responseSchema: schema
           ),
           safetySettings: [
             SafetySetting(harmCategory: .harassment, threshold: .blockMediumAndAbove),
@@ -39,100 +40,33 @@ public extension GeminiAIEvent {
           ]
         )
     }
-    
-    func checKeyExist(with version: GeminiAIVersion) async -> Bool {
-        let (_, status, _) = await GeminiSend(prompt: "Test prompt", and: true, with: version)
-        switch status {
-        case .NotExistsKey, .ExistsKey, .SendReqestFail:
-            return false
-        case .Success:
-            return true
-        }
-    }
-    
-    // MARK: - New
-    func GeminiSend(prompt: String
-                    , and image: UIImage
-                    , with version: GeminiAIVersion
-    ) async -> String {
-        let modelKey = await getKey()
-        guard modelKey.exists else { return "" }
-        let model = getModel(with: modelKey.model, and: version)
-        let _ = model.startChat(history: [])
-
-        do {
-            let contentStream = model.generateContentStream(prompt, image)
-            var result = ""
-
-            for try await chunk in contentStream {
-                if let text = chunk.text {
-                    result += text
-                }
-            }
-            return result
-        } catch {
-            return "Data not found"
-        }
-    }
-    
-    func GeminiSend(prompt: String
-                    , with hasStream: Bool
-                    , and version: GeminiAIVersion
-    ) async -> GeminiResponse {
-        
-        let modelKey = await getKey()
-        guard modelKey.exists else { return GeminiResponse(text: "", status: .NotExistsKey)}
-        let model = getModel(with: modelKey.model, and: version)
-        let chat = model.startChat(history: [])
-
-        do {
-            if hasStream {
-                var result = ""
-                let responseStream = chat.sendMessageStream(prompt)
-                for try await chunk in responseStream {
-                    if let text = chunk.text {
-                        result += text
-                    }
-                }
-                return GeminiResponse(text: result, status: .Success)
-            } else {
-                let response = try await chat.sendMessage(prompt)
-                let _ = try await model.countTokens(prompt)
-                return GeminiResponse(text: response.text ?? "Empty", status: .Success)
-            }
-        } catch {
-            return GeminiResponse(text: "Data not found", status: .SendReqestFail)
-        }
-    }
-    
-    func GeminiSend(prompt: String, and hasStream: Bool
-                    , with version: GeminiAIVersion
-    ) async -> (String, GeminiStatus, String) {
-        let modelKey = await getKey()
-        guard modelKey.exists else { return ("", .NotExistsKey, "") }
-        
-        let model = getModel(with: modelKey.model, and: version)
-        let chat = model.startChat(history: [])
-        
-        do {
-            if hasStream {
-                var result = ""
-                let responseStream = chat.sendMessageStream(prompt)
-                for try await chunk in responseStream {
-                    if let text = chunk.text {
-                        result += text
-                    }
-                }
-                return (result, .Success, modelKey.model.valueItem)
-            } else {
-                let response = try await chat.sendMessage(prompt)
-                let _ = try await model.countTokens(prompt)
-                return (response.text ?? "Empty", .Success, modelKey.model.valueItem)
-            }
-        } catch {
-            return ("Data not found", .SendReqestFail, "")
-        }
-    }
-
 }
-*/
+
+@available(iOS 16.0, *)
+public protocol ChatMessaging {
+    var inputText: String { get set }
+    var messages: [ChatMessage] { get set }
+    func sendTextMessage(_ prompt: String, hasStream: Bool) async
+    func sendMessage(with prompt: String, and images: [UIImage], hasStream: Bool, versionAI: GeminiAIVersion) async throws
+}
+
+@available(iOS 16.0, *)
+public protocol ChatImageHandling {
+    var imagesSelected: [UIImage] { get set }
+    func remove(image: UIImage)
+}
+
+@available(iOS 16.0, *)
+public protocol ChatHistory {
+    var history: [ModelContent] { get set }
+    func resetHistory()
+    func addChatHistory(by message: ChatMessage)
+}
+
+@available(iOS 16.0, *)
+public protocol ChatSuggestions {
+    var promptsSuggest: [String] { get set }
+    func aiSendSuggestIdea() async
+    func resetSuggestIdea()
+}
+
