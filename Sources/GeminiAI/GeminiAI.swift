@@ -76,12 +76,17 @@ public protocol AIChatEvent: AnyObject {
     var chat: Chat? { get set } // Phiên chat
     var history: [ModelContent] { get set }
     var messages: [ChatMessage] { get set }
+    var imagesSelected: [UIImage] { get set }
+    
     func getKey() -> GeminiAI.GeminiAIModel
     
     func add(_ message: ChatMessage)
     func update(message: ChatMessage, by content: String)
     func resetHistory()
     func addChatHistory(by message: ChatMessage)
+    
+    
+    func eventFrom(aiResponse: ChatMessage)
 }
 
 @available(iOS 16.0, *)
