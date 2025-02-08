@@ -96,7 +96,7 @@ public protocol AIChatEvent: AnyObject {
     
     func eventFrom(aiResponse: ChatMessage)
     
-    func resetSuggestIdea()
+    func aiSendSuggestIdea() async
     func chat(by owner: RequestBy, with prompt: String
               , and images: [UIImage]
               , has stream: Bool
@@ -246,7 +246,7 @@ public extension AIChatEvent {
     func addChatHistory(by message: ChatMessage) {}
     func remove(image: UIImage) {}
     
-    func resetSuggestIdea() {}
+    func aiSendSuggestIdea() async {}
     
     func chat(by owner: RequestBy, with prompt: String
               , and images: [UIImage] = []
