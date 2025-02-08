@@ -71,6 +71,7 @@ public struct ChatMessage: Equatable, Identifiable {
     }
 }
 
+@available(iOS 16.0, *)
 public enum RequestBy: String {
     case Client
     case System
