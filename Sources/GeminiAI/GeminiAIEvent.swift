@@ -15,6 +15,7 @@ public protocol ChatManager: MessageHandling {
     var messages: [ChatMessage] { get set }
     var history: [ModelContent] { get set }
     
+    func initializeChat(for schema: Schema)
     func getKey() -> GeminiAI.GeminiAIModel
     func chat(by owner: RequestBy, with prompt: String, and images: [UIImage], has stream: Bool, of versionAI: GeminiAIVersion) async throws
 }

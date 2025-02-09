@@ -44,7 +44,7 @@ public struct AIImage: Identifiable {
 }
 
 @available(iOS 16.0, *)
-public struct ChatMessage: Equatable, Identifiable {
+public struct ChatMessage: Equatable, Identifiable, Hashable {
     public var id = UUID()
     public var content: String // String
     public var isUser: Bool
