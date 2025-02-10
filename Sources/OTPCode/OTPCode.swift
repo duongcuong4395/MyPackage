@@ -34,6 +34,7 @@ public enum TextFieldType: String, CaseIterable {
 public struct VerificationField: View {
     var type: CodeType
     var style: TextFieldType = .roundedBorder
+    @Binding var useKeyboard: Bool
     @Binding var value: String
     var onchange: (String) async -> TypingState
     @State private var state: TypingState = .typing
@@ -41,10 +42,17 @@ public struct VerificationField: View {
     @FocusState private var isActive: Bool
     @State private var invalidTrigger: Bool = false
     
-    public init(type: CodeType, style: TextFieldType, value: Binding<String>, onchange: @escaping (String) -> TypingState) {
+    
+    
+    public init(type: CodeType, style: TextFieldType
+                , useKeyboard: Binding<Bool>
+                , value: Binding<String>, onchange: @escaping (String) -> TypingState) {
+        
         self.type = type
         self.style = style
         self._value = value
+        self._useKeyboard = useKeyboard
+        
         self.onchange = onchange
     }
     
@@ -79,7 +87,9 @@ public struct VerificationField: View {
         }
         .contentShape(.rect)
         .onTapGesture {
-            isActive = true
+            if useKeyboard {
+                isActive = true
+            }
         }
         .onChange(of: value) { oldValue, newValue in
             value = String(newValue.prefix(type.rawValue))
@@ -158,30 +168,114 @@ public enum OTPState: String {
 
 @available(iOS 17.0, *)
 public struct OTPView: View {
-    
+    @Binding var code: String
+    @Binding var useKeyboard: Bool
     var opt: (result: String, codeType: CodeType, textFieldType: TextFieldType)
     var onState: (OTPState) -> Void
     
-    @State private var code: String = ""
-    
-    public init(opt: (result: String, codeType: CodeType, textFieldType: TextFieldType), onState: @escaping (OTPState) -> Void) {
+    public init(code: Binding<String>, useKeyboard: Binding<Bool>, opt: (result: String, codeType: CodeType, textFieldType: TextFieldType), onState: @escaping (OTPState) -> Void) {
+        self._code = code
+        self._useKeyboard = useKeyboard
         self.opt = opt
         self.onState = onState
     }
     
     public var body: some View {
-        VerificationField(type: opt.codeType , style: opt.textFieldType, value: $code) { result in
-            if result.count < opt.codeType.rawValue {
-                onState(.Typing)
-                return .typing
-            } else if result == opt.result {
-                onState(.Valid)
-                return .valid
-            } else {
-                onState(.InValid)
-                return .invalid
+        VStack(spacing: 20) {
+            VerificationField(type: opt.codeType
+                              , style: opt.textFieldType
+                              , useKeyboard: $useKeyboard, value: $code) { result in
+                if result.count < opt.codeType.rawValue {
+                    onState(.Typing)
+                    return .typing
+                } else if result == opt.result {
+                    onState(.Valid)
+                    return .valid
+                } else {
+                    onState(.InValid)
+                    return .invalid
+                }
             }
+            if !useKeyboard {
+                HStack {
+                    Spacer()
+                    numbView(1)
+                    Spacer()
+                    numbView(2)
+                    Spacer()
+                    numbView(3)
+                    Spacer()
+                }
+                HStack {
+                    Spacer()
+                    numbView(4)
+                    Spacer()
+                    numbView(5)
+                    Spacer()
+                    numbView(6)
+                    Spacer()
+                }
+                HStack {
+                    Spacer()
+                    numbView(7)
+                    Spacer()
+                    numbView(8)
+                    Spacer()
+                    numbView(9)
+                    Spacer()
+                }
+                HStack {
+                    Spacer()
+                    Circle()
+                    .stroke(.gray, lineWidth: 1.2)
+                    .frame(width: UIScreen.main.bounds.width / 5)
+                    .overlay {
+                        Image(systemName: "xmark")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .transition(.blurReplace)
+                    }
+                    .onTapGesture {
+                        code = ""
+                    }
+                    Spacer()
+                    numbView(0)
+                    Spacer()
+                    
+                    
+                    Circle()
+                    .stroke(.gray, lineWidth: 1.2)
+                    .frame(width: UIScreen.main.bounds.width / 5)
+                    .overlay {
+                        Image(systemName: "delete.left")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .transition(.blurReplace)
+                    }
+                    .onTapGesture {
+                        self.code = String(code.dropLast())
+                    }
+                    Spacer()
+                }
+            }
+            
         }
-        
+    }
+    
+    @ViewBuilder
+    func numbView(_ numb: Int) -> some View {
+        Circle()
+        .stroke(.gray, lineWidth: 1.2)
+        .frame(width: UIScreen.main.bounds.width / 5)
+        .overlay {
+            Text("\(numb)")
+                .font(.title2)
+                .fontWeight(.semibold)
+                .transition(.blurReplace)
+        }
+        .onTapGesture {
+            guard code.count < opt.result.count else { return }
+            code += "\(numb)"
+        }
     }
 }
