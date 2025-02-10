@@ -16,6 +16,7 @@ public enum CodeType: Int, CaseIterable {
     var stringValue: String {
         "\(rawValue) Digit"
     }
+    
 }
 
 public enum TypingState: Sendable {
@@ -106,7 +107,9 @@ public struct VerificationField: View {
     func CharacterView(_ index: Int) -> some View {
         Group {
             if style == .roundedBorder {
-                RoundedRectangle(cornerRadius: 10)
+                //RoundedRectangle(cornerRadius: 10)
+                    //.stroke(borderColor(index), lineWidth: 1.2)
+                Circle()
                     .stroke(borderColor(index), lineWidth: 1.2)
             } else {
                 Rectangle()
@@ -146,22 +149,39 @@ public struct VerificationField: View {
     }
 }
 
+public enum OTPState: String {
+    case Typing
+    case Valid
+    case InValid
+}
+
+
 @available(iOS 17.0, *)
-public struct DemoOTPCodeView: View {
+public struct OTPView: View {
+    
+    var opt: (result: String, codeType: CodeType, textFieldType: TextFieldType)
+    var onState: (OTPState) -> Void
+    
     @State private var code: String = ""
-    init() {
-     
+    
+    public init(opt: (result: String, codeType: CodeType, textFieldType: TextFieldType), onState: @escaping (OTPState) -> Void) {
+        self.opt = opt
+        self.onState = onState
     }
     
     public var body: some View {
-        VerificationField(type: .four, style: .underlined, value: $code) { result in
-            if result.count < 4 {
+        VerificationField(type: opt.codeType , style: opt.textFieldType, value: $code) { result in
+            if result.count < opt.codeType.rawValue {
+                onState(.Typing)
                 return .typing
-            } else if result == "1234" {
-                return.valid
+            } else if result == opt.result {
+                onState(.Valid)
+                return .valid
             } else {
+                onState(.InValid)
                 return .invalid
             }
         }
+        
     }
 }
