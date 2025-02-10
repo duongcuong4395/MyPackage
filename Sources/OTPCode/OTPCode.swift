@@ -57,6 +57,13 @@ public struct VerificationField: View {
     }
     
     public var body: some View {
+        
+        Image(systemName: "lock.fill")
+            .font(.title3)
+        
+        Text("Enter code")
+            .font(.title3)
+        
         HStack(spacing: style == .roundedBorder ? 6 : 10) {
             ForEach(0..<type.rawValue, id: \.self) { index in
                 CharacterView(index)
