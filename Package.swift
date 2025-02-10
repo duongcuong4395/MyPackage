@@ -25,6 +25,11 @@ let package = Package(
         .library(
             name: "DeviceRotation",
             targets: ["DeviceRotation"]),
+        .library(
+            name: "OTPCode",
+            targets: ["OTPCode"]),
+        
+        
         
         
     ],
@@ -58,7 +63,9 @@ let package = Package(
         .target(
             name: "DeviceRotation",
             dependencies: []),
-        
+        .target(
+            name: "OTPCode",
+            dependencies: []),
         
     ]
 )
