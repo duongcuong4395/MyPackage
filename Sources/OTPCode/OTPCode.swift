@@ -59,7 +59,7 @@ public struct VerificationField: View {
     public var body: some View {
         
         Image(systemName: "lock.fill")
-            .font(.title3)
+            .font(.title2)
         
         Text("Enter code")
             .font(.title3)
@@ -238,7 +238,7 @@ public struct OTPView: View {
                     .frame(width: UIScreen.main.bounds.width / 5)
                     .overlay {
                         Image(systemName: "xmark")
-                            .font(.title2)
+                            .font(.title)
                             .fontWeight(.semibold)
                             .transition(.blurReplace)
                     }
@@ -255,7 +255,7 @@ public struct OTPView: View {
                     .frame(width: UIScreen.main.bounds.width / 5)
                     .overlay {
                         Image(systemName: "delete.left")
-                            .font(.title2)
+                            .font(.title)
                             .fontWeight(.semibold)
                             .transition(.blurReplace)
                     }
@@ -276,7 +276,7 @@ public struct OTPView: View {
         .frame(width: UIScreen.main.bounds.width / 5)
         .overlay {
             Text("\(numb)")
-                .font(.title2)
+                .font(.title)
                 .fontWeight(.semibold)
                 .transition(.blurReplace)
         }
