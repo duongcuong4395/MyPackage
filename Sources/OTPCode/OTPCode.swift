@@ -24,7 +24,7 @@ public enum TypingState: Sendable {
     case invalid
 }
 
-public enum TextFieldStyle: String, CaseIterable {
+public enum TextFieldType: String, CaseIterable {
     case roundedBorder = "Rounded Border"
     case underlined = "Underlined"
 }
@@ -32,7 +32,7 @@ public enum TextFieldStyle: String, CaseIterable {
 @available(iOS 17.0, *)
 public struct VerificationField: View {
     var type: CodeType
-    var style: TextFieldStyle = .roundedBorder
+    var style: TextFieldType = .roundedBorder
     @Binding var value: String
     var onchange: (String) async -> TypingState
     @State private var state: TypingState = .typing
@@ -40,7 +40,7 @@ public struct VerificationField: View {
     @FocusState private var isActive: Bool
     @State private var invalidTrigger: Bool = false
     
-    public init(type: CodeType, style: TextFieldStyle, value: Binding<String>, onchange: @escaping (String) -> TypingState) {
+    public init(type: CodeType, style: TextFieldType, value: Binding<String>, onchange: @escaping (String) -> TypingState) {
         self.type = type
         self.style = style
         self._value = value
@@ -149,6 +149,10 @@ public struct VerificationField: View {
 @available(iOS 17.0, *)
 public struct DemoOTPCodeView: View {
     @State private var code: String = ""
+    init() {
+     
+    }
+    
     public var body: some View {
         VerificationField(type: .four, style: .underlined, value: $code) { result in
             if result.count < 4 {
