@@ -279,3 +279,68 @@ public struct OTPView: View {
         }
     }
 }
+
+@available(iOS 17.0, *)
+public struct OTPViewMod: ViewModifier {
+    @Environment(\.scenePhase) private var scenePhase
+    var opt: (result: String, codeType: CodeType, textFieldType: TextFieldType) // (result: "1234", codeType: CodeType.four, textFieldType: TextFieldType.roundedBorder)
+    
+    @Binding var showOptView: Bool// = true
+    @Binding var val: String// = ""
+    @Binding var useKeyboard: Bool// = false
+    
+    public init(opt: (result: String, codeType: CodeType, textFieldType: TextFieldType)
+         , showOptView: Binding<Bool>
+         , val: Binding<String>
+         , useKeyboard: Binding<Bool>) {
+        
+        self.opt = opt
+        self._showOptView = showOptView
+        self._val = val
+        self._useKeyboard = useKeyboard
+    }
+    
+    
+    public func body(content: Content) -> some View {
+        content
+            .blur(radius: showOptView ? 50 : 0)
+            .overlay {
+                if showOptView {
+                    ZStack {
+                        Rectangle()
+                            .foregroundStyle(.white.opacity(0.0001))
+                            .frame(width: .infinity, height: .infinity)
+                            .ignoresSafeArea(.all)
+                        
+                        OTPView(code: $val, useKeyboard: $useKeyboard, opt: opt) { state in
+                            switch state {
+                            case .Typing:
+                                showOptView = true
+                            case .Valid:
+                                withAnimation(.spring()) {
+                                    showOptView = false
+                                }
+                            case .InValid:
+                                showOptView = true
+                            }
+                        }
+                    }
+                }
+            }
+        .onChange(of: scenePhase) { oldValue, newValue in
+            withAnimation(.spring()) {
+                val = ""
+                showOptView = true
+            }
+            
+        }
+    }
+}
+
+@available(iOS 17.0, *)
+public extension View {
+    func OTPViewModifier(opt: (result: String, codeType: CodeType, textFieldType: TextFieldType)
+        , showOptView: Binding<Bool>, val: Binding<String>, useKeyboard: Binding<Bool>) -> some View {
+        modifier(OTPViewMod(opt: opt, showOptView: showOptView, val: val, useKeyboard: useKeyboard) )
+    }
+}
