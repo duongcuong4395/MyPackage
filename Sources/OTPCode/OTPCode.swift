@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-@available(IOS 16.0, *)
+@available(iOS 16.0, *)
 // Properties
 public enum CodeType: Int, CaseIterable {
     case four = 4
@@ -18,7 +18,7 @@ public enum CodeType: Int, CaseIterable {
     }
 }
 
-public enum TypingState {
+public enum TypingState: Sendable {
     case typing
     case valid
     case invalid
@@ -29,7 +29,7 @@ public enum TextFieldStyle: String, CaseIterable {
     case underlined = "Underlined"
 }
 
-@available(IOS 16.0, *)
+@available(iOS 17.0, *)
 public struct VerificationField: View {
     var type: CodeType
     var style: TextFieldStyle = .roundedBorder
@@ -40,10 +40,11 @@ public struct VerificationField: View {
     @FocusState private var isActive: Bool
     @State private var invalidTrigger: Bool = false
     
-    init(type: CodeType, style: TextFieldStyle, value: String, onchange: @escaping (String) -> TypingState) {
+    public init(type: CodeType, style: TextFieldStyle, value: Binding<String>, onchange: @escaping (String) -> TypingState) {
         self.type = type
         self.style = style
-        self.value = value
+        self._value = value
+        self.onchange = onchange
     }
     
     public var body: some View {
@@ -145,10 +146,10 @@ public struct VerificationField: View {
     }
 }
 
-@available(IOS 16.0, *)
+@available(iOS 17.0, *)
 public struct DemoOTPCodeView: View {
     @State private var code: String = ""
-    var body: some View {
+    public var body: some View {
         VerificationField(type: .four, style: .underlined, value: $code) { result in
             if result.count < 4 {
                 return .typing
