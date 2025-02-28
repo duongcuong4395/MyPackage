@@ -87,11 +87,11 @@ fileprivate class PassthroughWindow: UIWindow {
 
 @available(iOS 17.0, *)
 @Observable
-class Toast {
+public class Toast {
     @MainActor static let shared = Toast()
     fileprivate var toasts: [ToastItem] = []
 
-    func present(title: String, symbol: String?, tint: Color = .primary, isUserInteractionEnabled: Bool = false, timing: ToastTime = .medium) {
+    public func present(title: String, symbol: String?, tint: Color = .primary, isUserInteractionEnabled: Bool = false, timing: ToastTime = .medium) {
         
         withAnimation(.snappy) {
             toasts.append(.init(title: title, symbol: symbol, tint: tint, isUserInteractionEnabled: isUserInteractionEnabled, timing: timing))
