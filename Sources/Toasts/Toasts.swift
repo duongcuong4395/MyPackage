@@ -5,7 +5,10 @@
 //  Created by Macbook on 28/2/25.
 //
 
+// https://www.youtube.com/watch?v=b6FVOXZT8So
+
 import SwiftUI
+
 
 /*
  struct ContentView: View {
@@ -41,8 +44,11 @@ public struct RootView<Content: View>: View {
 
     @State private var overlayWindow: UIWindow?
     
-    public init(@ViewBuilder content: () -> Content) {
+    var alignment: VerticalAlignment // Thêm biến alignment
+
+    public init(alignment: VerticalAlignment = .bottom, @ViewBuilder content: () -> Content) {
         self.content = content()
+        self.alignment = alignment
     }
     
     public var body: some View {
@@ -52,7 +58,7 @@ public struct RootView<Content: View>: View {
                     let window = PassthroughWindow(windowScene: windowScene)
                     window.backgroundColor = .clear
                     
-                    let rootController = UIHostingController(rootView: ToastGroup())
+                    let rootController = UIHostingController(rootView: ToastGroup(alignment: alignment))
                     rootController.view.frame = windowScene.keyWindow?.frame ?? .zero
                     rootController.view.backgroundColor = .clear
                     
@@ -117,7 +123,11 @@ public enum ToastTime: CGFloat {
 fileprivate struct ToastGroup: View {
     var model = Toast.shared
 
-    public func ini() {}
+    var alignment: VerticalAlignment // Thêm biến để điều chỉnh vị trí
+
+    public init(alignment: VerticalAlignment = .bottom) {
+        self.alignment = alignment
+    }
     
     public var body: some View {
         GeometryReader { geometry in
@@ -131,17 +141,15 @@ fileprivate struct ToastGroup: View {
                         .scaleEffect(scale(toast))
                         .offset(y: offsetY(toast))
                         .zIndex(Double(model.toasts.firstIndex(where: { $0.id == toast.id }) ?? 0))
-                    /*
-                        .animation(.easeInOut) { view in
-                            view
-                                .offset(y: offsetY(toast))
-                        }
-                    */
                 }
                 
             }
-            .padding(.bottom, safeArea.top == .zero ? 15 : 10)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+            //.padding(.bottom, safeArea.top == .zero ? 15 : 10)
+            //.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+            
+            .padding(.bottom, alignment == .bottom ? (safeArea.bottom == 0 ? 15 : 10) : 0)
+            .padding(.top, alignment == .top ? (safeArea.top == 0 ? 15 : 10) : 0)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment == .top ? .top : .bottom)
         }
     }
     
@@ -163,8 +171,6 @@ fileprivate struct ToastView: View {
     var size: CGSize
     var item: ToastItem
 
-    //@State private var animateIn: Bool = false
-    //@State private var animateOut: Bool = false
     @State private var delayTask: DispatchWorkItem?
     
     public init(size: CGSize, item: ToastItem) {
@@ -180,7 +186,6 @@ fileprivate struct ToastView: View {
                     .padding(.trailing, 10)
             }
             
-            //Text("\(Toast.shared.toasts.count)")
             Text(item.title)
                 .lineLimit(1    )
         }
@@ -207,10 +212,6 @@ fileprivate struct ToastView: View {
                 }
         )
         
-        //.offset(y: animateIn ? 0 : 150)
-        //.offset(y: !animateOut ? 0 : 150)
-        
-        
         .onAppear{
             guard delayTask == nil else { return }
             
@@ -227,8 +228,6 @@ fileprivate struct ToastView: View {
         .transition(.offset(y: 150))
     }
     
-    
-    
     func removeToast() {
         if let delayTask {
             delayTask.cancel()
@@ -238,10 +237,4 @@ fileprivate struct ToastView: View {
             Toast.shared.toasts.removeAll(where: { $0.id == item.id })
         }
     }
-    
-    /*
-    func removeToastItem() {
-        Toast.shared.toasts.removeAll(where: { $0.id == item.id })
-    }
-    */
 }
