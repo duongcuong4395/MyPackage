@@ -40,10 +40,9 @@ public struct RootView<Content: View>: View {
     @ViewBuilder var content: Content
 
     @State private var overlayWindow: UIWindow?
-
-    public init(content: any View, overlayWindow: UIWindow? = nil) {
-        self.content = content as! Content
-        self.overlayWindow = overlayWindow
+    
+    public init(@ViewBuilder content: () -> Content) {
+        self.content = content()
     }
     
     public var body: some View {
