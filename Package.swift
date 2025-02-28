@@ -28,6 +28,9 @@ let package = Package(
         .library(
             name: "OTPCode",
             targets: ["OTPCode"]),
+        .library(
+            name: "Toasts",
+            targets: ["Toasts"]),
         
         
         
@@ -65,6 +68,9 @@ let package = Package(
             dependencies: []),
         .target(
             name: "OTPCode",
+            dependencies: []),
+        .target(
+            name: "Toasts",
             dependencies: []),
         
     ]
