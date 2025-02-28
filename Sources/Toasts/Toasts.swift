@@ -41,8 +41,9 @@ public struct RootView<Content: View>: View {
 
     @State private var overlayWindow: UIWindow?
 
-    public init(content: Content) {
-        self.content = content
+    public init(content: any View, overlayWindow: UIWindow? = nil) {
+        self.content = content as! Content
+        self.overlayWindow = overlayWindow
     }
     
     public var body: some View {
