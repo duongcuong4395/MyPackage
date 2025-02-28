@@ -170,12 +170,14 @@ fileprivate struct ToastGroup: View {
 fileprivate struct ToastView: View {
     var size: CGSize
     var item: ToastItem
+    var alignment: VerticalAlignment // Nhận alignment để điều chỉnh animation
 
     @State private var delayTask: DispatchWorkItem?
     
-    public init(size: CGSize, item: ToastItem) {
+    public init(size: CGSize, item: ToastItem, alignment: VerticalAlignment) {
         self.size = size
         self.item = item
+        self.alignment = alignment
     }
     
     public var body: some View {
@@ -225,7 +227,8 @@ fileprivate struct ToastView: View {
         }
         
         .frame(maxWidth: size.width * 0.7)
-        .transition(.offset(y: 150))
+        //.transition(.offset(y: 150))
+        .transition(alignment == .top ? .move(edge: .top) : .move(edge: .bottom))
     }
     
     func removeToast() {
