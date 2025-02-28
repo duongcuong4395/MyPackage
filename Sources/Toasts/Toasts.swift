@@ -137,7 +137,7 @@ fileprivate struct ToastGroup: View {
             ZStack {
                 
                 ForEach (model.toasts) { toast in
-                    ToastView(size: size, item: toast)
+                    ToastView(size: size, item: toast, alignment: alignment)
                         .scaleEffect(scale(toast))
                         .offset(y: offsetY(toast))
                         .zIndex(Double(model.toasts.firstIndex(where: { $0.id == toast.id }) ?? 0))
