@@ -62,13 +62,18 @@ public class APIRequest<Router: HttpRouter> {
     }
     
     @available(iOS 13.0.0, *)
-    public func callAPI() async throws -> APIResult<Router.responseDataType> {
+    public func callAPI2() async throws -> APIResult<Router.responseDataType> {
         // Tạo URL từ router
         guard let url = try? router.baseURL.asURL().appendingPathComponent(router.path) else {
             throw URLError(.badURL)
         }
-        print("Enpoint: ", url, router.parameters as Any)
+        
+        
+        print("Endpoint: ", url)
+        print("Headers: ", router.headers ?? [:])
 
+        
+        
         // Gửi yêu cầu và đợi kết quả
         let response = await AF.request(url, method: router.method, parameters: router.parameters, headers: router.headers).serializingData().response
 
@@ -77,5 +82,42 @@ public class APIRequest<Router: HttpRouter> {
         
         // Trả về kết quả
         return result
+    }
+    
+    @available(iOS 13.0.0, *)
+    public func callAPI() async throws -> APIResult<Router.responseDataType> {
+        guard let url = try? router.baseURL.asURL().appendingPathComponent(router.path) else {
+                throw URLError(.badURL)
+            }
+            
+        print("Endpoint: ", url)
+        print("Headers: ", router.headers ?? [:])
+
+        var request: URLRequest
+        
+        if router.method == .get {
+            // Nếu là GET, thêm query parameters vào URL
+            var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+            if let parameters = router.parameters as? [String: Any] {
+                components?.queryItems = parameters.map { key, value in
+                    URLQueryItem(name: key, value: "\(value)")
+                }
+            }
+            request = URLRequest(url: components?.url ?? url)
+        } else {
+            // Nếu là POST, gửi body
+            request = URLRequest(url: url)
+            if let body = router.body {
+                request.httpBody = body
+                print("Body JSON: ", String(data: body, encoding: .utf8) ?? "Invalid JSON")
+            }
+        }
+
+        request.httpMethod = router.method.rawValue
+        request.allHTTPHeaderFields = router.headers?.dictionary
+
+        let response = await AF.request(request).serializingData().response
+
+        return self.router.handleResponse(with: response.data, error: response.error)
     }
 }
