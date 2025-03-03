@@ -47,6 +47,15 @@ public struct AIImage: Identifiable {
 public struct PromptsSuggest: Equatable, Identifiable, Hashable {
     public var id = UUID()
     public var prompt: String
+    
+    public init(id: UUID = UUID(), prompt: String) {
+        self.id = id
+        self.prompt = prompt
+    }
+    
+    public init(prompt: String) {
+        self.prompt = prompt
+    }
 }
 
 @available(iOS 16.0, *)
