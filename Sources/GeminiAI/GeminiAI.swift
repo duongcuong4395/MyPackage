@@ -43,6 +43,12 @@ public struct AIImage: Identifiable {
     public var image: Image
 }
 
+@available(iOS 15.0, *)
+public struct PromptsSuggest: Equatable, Identifiable, Hashable {
+    public var id = UUID()
+    public var prompt: String
+}
+
 @available(iOS 16.0, *)
 public struct ChatMessage: Equatable, Identifiable, Hashable {
     public var id = UUID()
@@ -85,6 +91,8 @@ public protocol AIChatEvent: AnyObject {
     var messages: [ChatMessage] { get set }
     var imagesSelected: [UIImage] { get set }
     var promptsSuggest: [String] { get set }
+    
+    var promptsSug: [PromptsSuggest] { get set }
     
     func getKey() -> GeminiAI.GeminiAIModel
     
