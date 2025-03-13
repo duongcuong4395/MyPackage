@@ -11,20 +11,23 @@ public let tags: [String] = ["iOS 14", "SwiftUI", "macOS", "watchOS", "tvOS", "X
 
 @available(iOS 17.0.0, *)
 public struct DemoChipsSelectionView: View {
+    public var isSelectOne: Bool
     
-    public init() {}
+    init(isSelectOne: Bool) {
+        self.isSelectOne = isSelectOne
+    }
     
     public var body: some View {
         NavigationStack {
             VStack {
-                ChipsView(tags: tags) { tag, isSelected in
+                ChipsView(tags: tags, isSelectOne: isSelectOne) { tag, isSelected in
                     /// Your Custom View
                     ChipView(tag, isSelected: isSelected)
                 } didChangeSelection: { selection in
                     print("Item Selection: ", selection)
                 }
                 .padding(10)
-                .background(.gray.opacity(0.1), in: .rect(cornerRadius: 20))
+                //.background(.gray.opacity(0.1), in: .rect(cornerRadius: 20))
                 
             }
             .padding(15)
@@ -64,18 +67,21 @@ public struct ChipsView<Content: View, Tag: Equatable>: View where Tag: Hashable
     public var spacing: CGFloat = 10
     public var animation: Animation = .easeInOut(duration: 0.2)
     public var tags: [Tag]
+    public var isSelectOne: Bool
     @ViewBuilder public  var content: (Tag, Bool) -> Content
     public var didChangeSelection: ([Tag]) -> ()
     /// View Properties
     @State public var selectedTags: [Tag] = []
     
     public init(tags: [Tag]
+                , isSelectOne: Bool = false
          , content: @escaping (Tag, Bool) -> Content
          , didChangeSelection: @escaping ([Tag]) -> Void) {
         self.tags = tags
         self.content = content
         self.didChangeSelection = didChangeSelection
         //self.selectedTags = selectedTags
+        self.isSelectOne = isSelectOne
     }
     
     public var body: some View {
@@ -85,10 +91,14 @@ public struct ChipsView<Content: View, Tag: Equatable>: View where Tag: Hashable
                     .contentShape(.rect)
                     .onTapGesture {
                         withAnimation(animation) {
-                            if selectedTags.contains(tag) {
-                                selectedTags.removeAll(where: { $0 == tag })
+                            if isSelectOne {
+                                selectedTags = [tag]
                             } else {
-                                selectedTags.append(tag)
+                                if selectedTags.contains(tag) {
+                                    selectedTags.removeAll(where: { $0 == tag })
+                                } else {
+                                    selectedTags.append(tag)
+                                }
                             }
                         }
                         /// Callback after update!
