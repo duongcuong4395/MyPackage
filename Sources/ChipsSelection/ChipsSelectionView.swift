@@ -9,12 +9,12 @@ import SwiftUI
 
 public let tags: [String] = ["iOS 14", "SwiftUI", "macOS", "watchOS", "tvOS", "Xcode", "macCatalyst", "UIKit", "AppKit", "Cocoa", "Objective-C"]
 
-protocol ChipViewProtocol {}
+public protocol ChipViewProtocol {}
 
 @available(iOS 17.0.0, *)
-extension ChipViewProtocol {
+public extension ChipViewProtocol {
     @ViewBuilder
-    public func ChipView(_ itemName: String, isSelected: Bool) -> some View {
+    func ChipView(_ itemName: String, isSelected: Bool) -> some View {
         HStack(spacing: 10) {
             Text(itemName)
                 .font(.callout)
