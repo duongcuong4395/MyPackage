@@ -13,7 +13,7 @@ public let tags: [String] = ["iOS 14", "SwiftUI", "macOS", "watchOS", "tvOS", "X
 public struct DemoChipsSelectionView: View {
     public var isSelectOne: Bool
     
-    init(isSelectOne: Bool) {
+    public init(isSelectOne: Bool = false) {
         self.isSelectOne = isSelectOne
     }
     
