@@ -32,6 +32,10 @@ let package = Package(
             name: "Toasts",
             targets: ["Toasts"]),
         
+        .library(
+            name: "ChipsSelection",
+            targets: ["ChipsSelection"]),
+        
         
         
         
@@ -71,6 +75,9 @@ let package = Package(
             dependencies: []),
         .target(
             name: "Toasts",
+            dependencies: []),
+        .target(
+            name: "ChipsSelection",
             dependencies: []),
         
     ]
