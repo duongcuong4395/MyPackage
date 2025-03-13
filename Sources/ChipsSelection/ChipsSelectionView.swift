@@ -12,6 +12,7 @@ public let tags: [String] = ["iOS 14", "SwiftUI", "macOS", "watchOS", "tvOS", "X
 @available(iOS 17.0.0, *)
 public struct DemoChipsSelectionView: View {
     
+    public init() {}
     
     public var body: some View {
         NavigationStack {
@@ -67,6 +68,16 @@ public struct ChipsView<Content: View, Tag: Equatable>: View where Tag: Hashable
     public var didChangeSelection: ([Tag]) -> ()
     /// View Properties
     @State public var selectedTags: [Tag] = []
+    
+    public init(tags: [Tag]
+         , content: @escaping (Tag, Bool) -> Content
+         , didChangeSelection: @escaping ([Tag]) -> Void) {
+        self.tags = tags
+        self.content = content
+        self.didChangeSelection = didChangeSelection
+        //self.selectedTags = selectedTags
+    }
+    
     public var body: some View {
         CustomChipLayout(spacing: spacing) {
             ForEach(tags, id: \.self) { tag in
