@@ -9,6 +9,36 @@ import SwiftUI
 
 public let tags: [String] = ["iOS 14", "SwiftUI", "macOS", "watchOS", "tvOS", "Xcode", "macCatalyst", "UIKit", "AppKit", "Cocoa", "Objective-C"]
 
+protocol ChipViewProtocol {}
+
+@available(iOS 17.0.0, *)
+extension ChipViewProtocol {
+    @ViewBuilder
+    public func ChipView(_ itemName: String, isSelected: Bool) -> some View {
+        HStack(spacing: 10) {
+            Text(itemName)
+                .font(.callout)
+                .foregroundStyle(isSelected ? .white : Color.primary)
+            if isSelected {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(.white)
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background {
+            ZStack {
+                Capsule()
+                    .fill(.background)
+                    .opacity(!isSelected ? 1 : 0)
+                Capsule()
+                    .fill(.green.gradient)
+                    .opacity(isSelected ? 1 : 0)
+            }
+        }
+    }
+}
+
 @available(iOS 17.0.0, *)
 public struct DemoChipsSelectionView: View {
     public var isSelectOne: Bool
