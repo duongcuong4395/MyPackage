@@ -42,7 +42,7 @@ public extension ChipViewProtocol {
 @available(iOS 17.0.0, *)
 public struct DemoChipsSelectionView: View {
     public var isSelectOne: Bool
-    
+    @State private var selectedTags: [String] = []
     public init(isSelectOne: Bool = false) {
         self.isSelectOne = isSelectOne
     }
@@ -50,7 +50,7 @@ public struct DemoChipsSelectionView: View {
     public var body: some View {
         NavigationStack {
             VStack {
-                ChipsView(tags: tags, isSelectOne: isSelectOne) { tag, isSelected in
+                ChipsView(tags: tags, selectedTags: $selectedTags, isSelectOne: isSelectOne) { tag, isSelected in
                     /// Your Custom View
                     ChipView(tag, isSelected: isSelected)
                 } didChangeSelection: { selection in
@@ -101,9 +101,12 @@ public struct ChipsView<Content: View, Tag: Equatable>: View where Tag: Hashable
     @ViewBuilder public  var content: (Tag, Bool) -> Content
     public var didChangeSelection: ([Tag]) -> ()
     /// View Properties
-    @State public var selectedTags: [Tag] = []
+    //@State public var selectedTags: [Tag] = []
+    @Binding public var selectedTags: [Tag]
+    
     
     public init(tags: [Tag]
+                , selectedTags: Binding<[Tag]>
                 , isSelectOne: Bool = false
          , content: @escaping (Tag, Bool) -> Content
          , didChangeSelection: @escaping ([Tag]) -> Void) {
@@ -112,7 +115,9 @@ public struct ChipsView<Content: View, Tag: Equatable>: View where Tag: Hashable
         self.didChangeSelection = didChangeSelection
         //self.selectedTags = selectedTags
         self.isSelectOne = isSelectOne
+        self._selectedTags = selectedTags
     }
+    
     
     public var body: some View {
         CustomChipLayout(spacing: spacing) {
