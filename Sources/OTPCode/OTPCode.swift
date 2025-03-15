@@ -317,7 +317,7 @@ public struct OTPViewMod: ViewModifier {
                 if showOptView {
                     ZStack {
                         Rectangle()
-                            .foregroundStyle(.white.opacity(0.0001))
+                            .foregroundStyle(backgroundColor)
                             .frame(width: .infinity, height: .infinity)
                             .ignoresSafeArea(.all)
                         
