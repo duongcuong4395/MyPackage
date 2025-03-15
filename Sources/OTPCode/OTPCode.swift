@@ -291,13 +291,14 @@ public struct OTPView: View {
 public struct OTPViewMod: ViewModifier {
     @Environment(\.scenePhase) private var scenePhase
     var opt: (result: String, codeType: CodeType, textFieldType: TextFieldType) // (result: "1234", codeType: CodeType.four, textFieldType: TextFieldType.roundedBorder)
-    
+    var backgroundColor: Color
     @Binding var showOptView: Bool// = true
     @Binding var val: String// = ""
     @Binding var useKeyboard: Bool// = false
     
     public init(opt: (result: String, codeType: CodeType, textFieldType: TextFieldType)
-         , showOptView: Binding<Bool>
+                , backgroundColor: Color = .white.opacity(0.0001)
+                , showOptView: Binding<Bool>
          , val: Binding<String>
          , useKeyboard: Binding<Bool>) {
         
@@ -305,6 +306,7 @@ public struct OTPViewMod: ViewModifier {
         self._showOptView = showOptView
         self._val = val
         self._useKeyboard = useKeyboard
+        self.backgroundColor = backgroundColor
     }
     
     
@@ -346,8 +348,9 @@ public struct OTPViewMod: ViewModifier {
 
 @available(iOS 17.0, *)
 public extension View {
-    func OTPViewModifier(opt: (result: String, codeType: CodeType, textFieldType: TextFieldType)
+    func OTPViewWhenScenePhaseChange(opt: (result: String, codeType: CodeType, textFieldType: TextFieldType)
+                         , backgroundColor: Color = .white.opacity(0.0001)
         , showOptView: Binding<Bool>, val: Binding<String>, useKeyboard: Binding<Bool>) -> some View {
-        modifier(OTPViewMod(opt: opt, showOptView: showOptView, val: val, useKeyboard: useKeyboard) )
+        modifier(OTPViewMod(opt: opt, backgroundColor: backgroundColor, showOptView: showOptView, val: val, useKeyboard: useKeyboard) )
     }
 }
