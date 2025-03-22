@@ -121,32 +121,25 @@ public struct ChipsView<Content: View, Tag: Equatable>: View where Tag: Hashable
     
     public var body: some View {
         CustomChipLayout(spacing: spacing) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack {
-                    ForEach(tags, id: \.self) { tag in
-                        content(tag, selectedTags.contains(tag))
-                            .contentShape(.rect)
-                            .onTapGesture {
-                                withAnimation(animation) {
-                                    if isSelectOne {
-                                        selectedTags = [tag]
-                                    } else {
-                                        if selectedTags.contains(tag) {
-                                            selectedTags.removeAll(where: { $0 == tag })
-                                        } else {
-                                            selectedTags.append(tag)
-                                        }
-                                    }
+            ForEach(tags, id: \.self) { tag in
+                content(tag, selectedTags.contains(tag))
+                    .contentShape(.rect)
+                    .onTapGesture {
+                        withAnimation(animation) {
+                            if isSelectOne {
+                                selectedTags = [tag]
+                            } else {
+                                if selectedTags.contains(tag) {
+                                    selectedTags.removeAll(where: { $0 == tag })
+                                } else {
+                                    selectedTags.append(tag)
                                 }
-                                /// Callback after update!
-                                didChangeSelection(selectedTags)
                             }
+                        }
+                        /// Callback after update!
+                        didChangeSelection(selectedTags)
                     }
-                }
-                .padding(0)
             }
-            .padding(0)
-            .frame(width: .infinity, height: .infinity)
         }
         
     }
@@ -197,3 +190,116 @@ fileprivate struct CustomChipLayout: Layout {
         return origin.y
     }
 }
+
+
+
+// MARK: New
+
+@available(iOS 17.0.0, *)
+public struct ChipsView2<Content: View, Tag: Equatable>: View where Tag: Hashable {
+    public var spacing: CGFloat = 10
+    public var animation: Animation = .easeInOut(duration: 0.2)
+    public var tags: [Tag]
+    public var isSelectOne: Bool
+    @ViewBuilder public var content: (Tag, Bool) -> Content
+    public var didChangeSelection: ([Tag]) -> ()
+    @Binding public var selectedTags: [Tag]
+
+    public init(tags: [Tag],
+                selectedTags: Binding<[Tag]>,
+                isSelectOne: Bool = false,
+                content: @escaping (Tag, Bool) -> Content,
+                didChangeSelection: @escaping ([Tag]) -> Void) {
+        self.tags = tags
+        self.content = content
+        self.didChangeSelection = didChangeSelection
+        self.isSelectOne = isSelectOne
+        self._selectedTags = selectedTags
+    }
+
+    public var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {  // ✅ Bọc trong ScrollView để tránh tràn nội dung
+            LazyHStack {
+                CustomChipLayout2(spacing: spacing) {
+                    ForEach(tags, id: \.self) { tag in
+                        content(tag, selectedTags.contains(tag))
+                            .contentShape(.rect)
+                            .onTapGesture {
+                                withAnimation(animation) {
+                                    if isSelectOne {
+                                        selectedTags = [tag]
+                                    } else {
+                                        if selectedTags.contains(tag) {
+                                            selectedTags.removeAll(where: { $0 == tag })
+                                        } else {
+                                            selectedTags.append(tag)
+                                        }
+                                    }
+                                }
+                                didChangeSelection(selectedTags)
+                            }
+                    }
+                }
+            }
+            
+        }
+        .frame(maxHeight: 200) // ✅ Giới hạn chiều cao tối đa, có thể điều chỉnh
+    }
+}
+
+
+@available(iOS 17.0.0, *)
+fileprivate struct CustomChipLayout2: Layout {
+    var spacing: CGFloat
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let width = proposal.width ?? 0
+        return .init(width: width, height: calculateHeight(proposal: proposal, subviews: subviews))
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var origin = bounds.origin
+        var currentLineHeight: CGFloat = 0
+
+        for subview in subviews {
+            let fitSize = subview.sizeThatFits(proposal)
+
+            if origin.x + fitSize.width > bounds.maxX {
+                // Xuống dòng mới
+                origin.x = bounds.minX
+                origin.y += currentLineHeight + spacing
+                currentLineHeight = 0
+            }
+
+            subview.place(at: origin, proposal: proposal)
+            origin.x += fitSize.width + spacing
+            currentLineHeight = max(currentLineHeight, fitSize.height)
+        }
+    }
+
+    private func calculateHeight(proposal: ProposedViewSize, subviews: Subviews) -> CGFloat {
+        var origin: CGPoint = .zero
+        var totalHeight: CGFloat = 0
+        var currentLineHeight: CGFloat = 0
+
+        for subview in subviews {
+            let fitSize = subview.sizeThatFits(proposal)
+
+            if origin.x + fitSize.width > (proposal.width ?? 0) {
+                // Xuống dòng mới
+                origin.x = 0
+                totalHeight += currentLineHeight + spacing
+                currentLineHeight = 0
+            }
+
+            origin.x += fitSize.width + spacing
+            currentLineHeight = max(currentLineHeight, fitSize.height)
+        }
+
+        // Cộng thêm chiều cao dòng cuối cùng
+        totalHeight += currentLineHeight
+        return totalHeight
+    }
+}
+
+
