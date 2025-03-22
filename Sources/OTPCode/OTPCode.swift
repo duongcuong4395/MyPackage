@@ -301,13 +301,15 @@ public struct OTPViewMod: ViewModifier {
     
     public init(
         width: CGFloat
-        , heght: CGFloat
+        , height: CGFloat
         ,opt: (result: String, codeType: CodeType, textFieldType: TextFieldType)
                 , backgroundColor: Color = .white.opacity(0.0001)
                 , showOTPView: Binding<Bool>
          , val: Binding<String>
          , useKeyboard: Binding<Bool>) {
         
+        self.width = width
+        self.height = height
         self.opt = opt
         self._showOTPView = showOTPView
         self._val = val
@@ -356,7 +358,7 @@ public struct OTPViewMod: ViewModifier {
 public extension View {
     func OTPViewWhenScenePhaseChange(
         width: CGFloat
-        , heght: CGFloat
+        , height: CGFloat
         , opt: (result: String, codeType: CodeType, textFieldType: TextFieldType)
         , backgroundColor: Color = .white.opacity(0.0001)
         , showOTPView: Binding<Bool>
@@ -365,7 +367,7 @@ public extension View {
             
         modifier(OTPViewMod(
             width: width
-            , heght: heght
+            , height: height
             , opt: opt
             , backgroundColor: backgroundColor
             , showOTPView: showOTPView
