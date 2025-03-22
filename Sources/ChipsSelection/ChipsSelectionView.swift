@@ -120,25 +120,27 @@ public struct ChipsView<Content: View, Tag: Equatable>: View where Tag: Hashable
     
     
     public var body: some View {
-        CustomChipLayout(spacing: spacing) {
-            ForEach(tags, id: \.self) { tag in
-                content(tag, selectedTags.contains(tag))
-                    .contentShape(.rect)
-                    .onTapGesture {
-                        withAnimation(animation) {
-                            if isSelectOne {
-                                selectedTags = [tag]
-                            } else {
-                                if selectedTags.contains(tag) {
-                                    selectedTags.removeAll(where: { $0 == tag })
+        ScrollView(.horizontal, showsIndicators: false) {
+            CustomChipLayout(spacing: spacing) {
+                ForEach(tags, id: \.self) { tag in
+                    content(tag, selectedTags.contains(tag))
+                        .contentShape(.rect)
+                        .onTapGesture {
+                            withAnimation(animation) {
+                                if isSelectOne {
+                                    selectedTags = [tag]
                                 } else {
-                                    selectedTags.append(tag)
+                                    if selectedTags.contains(tag) {
+                                        selectedTags.removeAll(where: { $0 == tag })
+                                    } else {
+                                        selectedTags.append(tag)
+                                    }
                                 }
                             }
+                            /// Callback after update!
+                            didChangeSelection(selectedTags)
                         }
-                        /// Callback after update!
-                        didChangeSelection(selectedTags)
-                    }
+                }
             }
         }
     }
