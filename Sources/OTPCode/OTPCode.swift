@@ -348,9 +348,18 @@ public struct OTPViewMod: ViewModifier {
 
 @available(iOS 17.0, *)
 public extension View {
-    func OTPViewWhenScenePhaseChange(opt: (result: String, codeType: CodeType, textFieldType: TextFieldType)
-                         , backgroundColor: Color = .white.opacity(0.0001)
-        , showOptView: Binding<Bool>, val: Binding<String>, useKeyboard: Binding<Bool>) -> some View {
-        modifier(OTPViewMod(opt: opt, backgroundColor: backgroundColor, showOptView: showOptView, val: val, useKeyboard: useKeyboard) )
+    func OTPViewWhenScenePhaseChange(
+        opt: (result: String, codeType: CodeType, textFieldType: TextFieldType)
+        , backgroundColor: Color = .white.opacity(0.0001)
+        , showOptView: Binding<Bool>
+        , valueInput: Binding<String>
+        , useKeyboard: Binding<Bool>) -> some View {
+            
+        modifier(OTPViewMod(
+            opt: opt
+            , backgroundColor: backgroundColor
+            , showOptView: showOptView
+            , val: valueInput
+            , useKeyboard: useKeyboard))
     }
 }
