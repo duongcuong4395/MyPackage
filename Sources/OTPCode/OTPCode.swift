@@ -292,18 +292,18 @@ public struct OTPViewMod: ViewModifier {
     @Environment(\.scenePhase) private var scenePhase
     var opt: (result: String, codeType: CodeType, textFieldType: TextFieldType) // (result: "1234", codeType: CodeType.four, textFieldType: TextFieldType.roundedBorder)
     var backgroundColor: Color
-    @Binding var showOptView: Bool// = true
+    @Binding var showOTPView: Bool// = true
     @Binding var val: String// = ""
     @Binding var useKeyboard: Bool// = false
     
     public init(opt: (result: String, codeType: CodeType, textFieldType: TextFieldType)
                 , backgroundColor: Color = .white.opacity(0.0001)
-                , showOptView: Binding<Bool>
+                , showOTPView: Binding<Bool>
          , val: Binding<String>
          , useKeyboard: Binding<Bool>) {
         
         self.opt = opt
-        self._showOptView = showOptView
+        self._showOTPView = showOTPView
         self._val = val
         self._useKeyboard = useKeyboard
         self.backgroundColor = backgroundColor
@@ -312,9 +312,9 @@ public struct OTPViewMod: ViewModifier {
     
     public func body(content: Content) -> some View {
         content
-            .blur(radius: showOptView ? 50 : 0)
+            .blur(radius: showOTPView ? 50 : 0)
             .overlay {
-                if showOptView {
+                if showOTPView {
                     ZStack {
                         Rectangle()
                             .foregroundStyle(backgroundColor)
@@ -324,13 +324,13 @@ public struct OTPViewMod: ViewModifier {
                         OTPView(code: $val, useKeyboard: $useKeyboard, opt: opt) { state in
                             switch state {
                             case .Typing:
-                                showOptView = true
+                                showOTPView = true
                             case .Valid:
                                 withAnimation(.spring()) {
-                                    showOptView = false
+                                    showOTPView = false
                                 }
                             case .InValid:
-                                showOptView = true
+                                showOTPView = true
                             }
                         }
                     }
@@ -339,7 +339,7 @@ public struct OTPViewMod: ViewModifier {
         .onChange(of: scenePhase) { oldValue, newValue in
             withAnimation(.spring()) {
                 val = ""
-                showOptView = true
+                showOTPView = true
             }
             
         }
@@ -351,14 +351,14 @@ public extension View {
     func OTPViewWhenScenePhaseChange(
         opt: (result: String, codeType: CodeType, textFieldType: TextFieldType)
         , backgroundColor: Color = .white.opacity(0.0001)
-        , showOptView: Binding<Bool>
+        , showOTPView: Binding<Bool>
         , valueInput: Binding<String>
         , useKeyboard: Binding<Bool>) -> some View {
             
         modifier(OTPViewMod(
             opt: opt
             , backgroundColor: backgroundColor
-            , showOptView: showOptView
+            , showOTPView: showOTPView
             , val: valueInput
             , useKeyboard: useKeyboard))
     }
