@@ -122,25 +122,28 @@ public struct ChipsView<Content: View, Tag: Equatable>: View where Tag: Hashable
     public var body: some View {
         CustomChipLayout(spacing: spacing) {
             ScrollView(.horizontal, showsIndicators: false) {
-                ForEach(tags, id: \.self) { tag in
-                    content(tag, selectedTags.contains(tag))
-                        .contentShape(.rect)
-                        .onTapGesture {
-                            withAnimation(animation) {
-                                if isSelectOne {
-                                    selectedTags = [tag]
-                                } else {
-                                    if selectedTags.contains(tag) {
-                                        selectedTags.removeAll(where: { $0 == tag })
+                LazyHStack {
+                    ForEach(tags, id: \.self) { tag in
+                        content(tag, selectedTags.contains(tag))
+                            .contentShape(.rect)
+                            .onTapGesture {
+                                withAnimation(animation) {
+                                    if isSelectOne {
+                                        selectedTags = [tag]
                                     } else {
-                                        selectedTags.append(tag)
+                                        if selectedTags.contains(tag) {
+                                            selectedTags.removeAll(where: { $0 == tag })
+                                        } else {
+                                            selectedTags.append(tag)
+                                        }
                                     }
                                 }
+                                /// Callback after update!
+                                didChangeSelection(selectedTags)
                             }
-                            /// Callback after update!
-                            didChangeSelection(selectedTags)
-                        }
+                    }
                 }
+                
             }
             
         }
