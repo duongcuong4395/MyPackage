@@ -120,8 +120,8 @@ public struct ChipsView<Content: View, Tag: Equatable>: View where Tag: Hashable
     
     
     public var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            CustomChipLayout(spacing: spacing) {
+        CustomChipLayout(spacing: spacing) {
+            ScrollView(.horizontal, showsIndicators: false) {
                 ForEach(tags, id: \.self) { tag in
                     content(tag, selectedTags.contains(tag))
                         .contentShape(.rect)
@@ -142,7 +142,9 @@ public struct ChipsView<Content: View, Tag: Equatable>: View where Tag: Hashable
                         }
                 }
             }
+            
         }
+        
     }
 }
 
