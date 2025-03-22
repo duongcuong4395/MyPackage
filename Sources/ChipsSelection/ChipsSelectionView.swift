@@ -143,8 +143,9 @@ public struct ChipsView<Content: View, Tag: Equatable>: View where Tag: Hashable
                             }
                     }
                 }
-                
+                .padding(0)
             }
+            .padding(0)
             
         }
         
