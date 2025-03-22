@@ -291,12 +291,18 @@ public struct OTPView: View {
 public struct OTPViewMod: ViewModifier {
     @Environment(\.scenePhase) private var scenePhase
     var opt: (result: String, codeType: CodeType, textFieldType: TextFieldType) // (result: "1234", codeType: CodeType.four, textFieldType: TextFieldType.roundedBorder)
+    
+    var width: CGFloat
+    var height: CGFloat
     var backgroundColor: Color
     @Binding var showOTPView: Bool// = true
     @Binding var val: String// = ""
     @Binding var useKeyboard: Bool// = false
     
-    public init(opt: (result: String, codeType: CodeType, textFieldType: TextFieldType)
+    public init(
+        width: CGFloat
+        , heght: CGFloat
+        ,opt: (result: String, codeType: CodeType, textFieldType: TextFieldType)
                 , backgroundColor: Color = .white.opacity(0.0001)
                 , showOTPView: Binding<Bool>
          , val: Binding<String>
@@ -318,7 +324,7 @@ public struct OTPViewMod: ViewModifier {
                     ZStack {
                         Rectangle()
                             .foregroundStyle(backgroundColor)
-                            .frame(width: .infinity, height: .infinity)
+                            .frame(width: width, height: height)
                             .ignoresSafeArea(.all)
                         
                         OTPView(code: $val, useKeyboard: $useKeyboard, opt: opt) { state in
@@ -349,17 +355,22 @@ public struct OTPViewMod: ViewModifier {
 @available(iOS 17.0, *)
 public extension View {
     func OTPViewWhenScenePhaseChange(
-        opt: (result: String, codeType: CodeType, textFieldType: TextFieldType)
+        width: CGFloat
+        , heght: CGFloat
+        , opt: (result: String, codeType: CodeType, textFieldType: TextFieldType)
         , backgroundColor: Color = .white.opacity(0.0001)
         , showOTPView: Binding<Bool>
         , valueInput: Binding<String>
         , useKeyboard: Binding<Bool>) -> some View {
             
         modifier(OTPViewMod(
-            opt: opt
+            width: width
+            , heght: heght
+            , opt: opt
             , backgroundColor: backgroundColor
             , showOTPView: showOTPView
             , val: valueInput
             , useKeyboard: useKeyboard))
     }
 }
+
