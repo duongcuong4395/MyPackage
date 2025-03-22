@@ -218,9 +218,9 @@ public struct ChipsView2<Content: View, Tag: Equatable>: View where Tag: Hashabl
     }
 
     public var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {  // ✅ Bọc trong ScrollView để tránh tràn nội dung
-            LazyHStack {
-                CustomChipLayout2(spacing: spacing) {
+        CustomChipLayout2(spacing: spacing) {
+            ScrollView(.horizontal, showsIndicators: false) {  // ✅ Bọc trong ScrollView để tránh tràn nội dung
+                LazyHStack {
                     ForEach(tags, id: \.self) { tag in
                         content(tag, selectedTags.contains(tag))
                             .contentShape(.rect)
@@ -240,10 +240,14 @@ public struct ChipsView2<Content: View, Tag: Equatable>: View where Tag: Hashabl
                             }
                     }
                 }
+                
             }
+            .frame(maxHeight: 200) // ✅ Giới hạn chiều cao tối đa, có thể điều chỉnh
+            
             
         }
-        .frame(maxHeight: 200) // ✅ Giới hạn chiều cao tối đa, có thể điều chỉnh
+        
+        
     }
 }
 
