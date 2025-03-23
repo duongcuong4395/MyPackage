@@ -9,6 +9,8 @@ import SwiftUI
 
 public let tags: [String] = ["iOS 14", "SwiftUI", "macOS", "watchOS", "tvOS", "Xcode", "macCatalyst", "UIKit", "AppKit", "Cocoa", "Objective-C"]
 
+/*
+ 
 public protocol ChipViewProtocol {}
 
 @available(iOS 17.0.0, *)
@@ -38,6 +40,8 @@ public extension ChipViewProtocol {
         }
     }
 }
+
+*/
 
 @available(iOS 17.0.0, *)
 public struct DemoChipsSelectionView: View {
@@ -105,11 +109,14 @@ public struct ChipsView<Content: View, Tag: Equatable>: View where Tag: Hashable
     @Binding public var selectedTags: [Tag]
     
     
-    public init(tags: [Tag]
+    public init(
+        animation: Animation = .easeInOut(duration: 0.2)
+            , tags: [Tag]
                 , selectedTags: Binding<[Tag]>
                 , isSelectOne: Bool = false
          , content: @escaping (Tag, Bool) -> Content
          , didChangeSelection: @escaping ([Tag]) -> Void) {
+             self.animation = animation
         self.tags = tags
         self.content = content
         self.didChangeSelection = didChangeSelection
