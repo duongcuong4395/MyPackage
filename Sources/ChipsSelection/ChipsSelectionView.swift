@@ -212,11 +212,16 @@ public struct ChipsView2<Content: View, Tag: Equatable>: View where Tag: Hashabl
     public var didChangeSelection: ([Tag]) -> ()
     @Binding public var selectedTags: [Tag]
 
-    public init(tags: [Tag],
+    public init(
+        spacing: CGFloat = 10
+        , animation: Animation = .easeInOut(duration: 0.2)
+        , tags: [Tag],
                 selectedTags: Binding<[Tag]>,
                 isSelectOne: Bool = false,
                 content: @escaping (Tag, Bool) -> Content,
                 didChangeSelection: @escaping ([Tag]) -> Void) {
+        self.spacing = spacing
+        self.animation = animation
         self.tags = tags
         self.content = content
         self.didChangeSelection = didChangeSelection
