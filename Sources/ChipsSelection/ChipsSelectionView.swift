@@ -204,6 +204,7 @@ fileprivate struct CustomChipLayout: Layout {
 
 @available(iOS 17.0.0, *)
 public struct ChipsView2<Content: View, Tag: Equatable>: View where Tag: Hashable {
+    public var hasFixedFirstItem: Bool = false
     public var spacing: CGFloat = 10
     public var animation: Animation = .easeInOut(duration: 0.2)
     public var tags: [Tag]
@@ -211,11 +212,12 @@ public struct ChipsView2<Content: View, Tag: Equatable>: View where Tag: Hashabl
     @ViewBuilder public var content: (Tag, Bool) -> Content
     public var didChangeSelection: ([Tag]) -> ()
     @Binding public var selectedTags: [Tag]
-
-    @State private var scrollPosition: Tag? // Lưu vị trí tag đầu tiên
+        
+    
     
     public init(
-        spacing: CGFloat = 10
+        hasFixedFirstItem: Bool = false
+        , spacing: CGFloat = 10
         , animation: Animation = .easeInOut(duration: 0.2)
         , tags: [Tag],
                 selectedTags: Binding<[Tag]>,
@@ -229,42 +231,49 @@ public struct ChipsView2<Content: View, Tag: Equatable>: View where Tag: Hashabl
         self.didChangeSelection = didChangeSelection
         self.isSelectOne = isSelectOne
         self._selectedTags = selectedTags
+        self.hasFixedFirstItem = hasFixedFirstItem
     }
 
     public var body: some View {
         CustomChipLayout2(spacing: spacing) {
-            ScrollView(.horizontal, showsIndicators: false) {  // ✅ Bọc trong ScrollView để tránh tràn nội dung
-                LazyHStack {
-                    ForEach(tags, id: \.self) { tag in
-                        content(tag, selectedTags.contains(tag))
-                            .contentShape(.rect)
-                            .onTapGesture {
-                                withAnimation(animation) {
-                                    if isSelectOne {
-                                        selectedTags = [tag]
-                                    } else {
-                                        if selectedTags.contains(tag) {
-                                            selectedTags.removeAll(where: { $0 == tag })
-                                        } else {
-                                            selectedTags.append(tag)
-                                        }
-                                    }
-                                }
-                                didChangeSelection(selectedTags)
-                            }
-                            .id(tag)
-                    }
-                }
-                .scrollPosition(id: $scrollPosition)
-            }
-            .frame(maxHeight: 200) // ✅ Giới hạn chiều cao tối đa, có thể điều chỉnh
-            .onAppear{
-                scrollPosition = tags.first
+            if hasFixedFirstItem, let firstTag = tags.first {
+                chipView(for: firstTag)
             }
             
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack {
+                    ForEach(hasFixedFirstItem ? Array(tags.dropFirst()) : tags, id: \.self) { tag in
+                        chipView(for: tag)
+                    }
+                }
+                
+            }
+            .frame(maxHeight: 200) // ✅ Giới hạn chiều cao tối đa, có thể điều chỉnh
+            
         }
-        
-        
+    }
+    
+    private func chipView(for tag: Tag) -> some View {
+        content(tag, selectedTags.contains(tag))
+            .contentShape(.rect)
+            .onTapGesture {
+                withAnimation(animation) {
+                    handleSelection(of: tag)
+                }
+            }
+    }
+    
+    private func handleSelection(of tag: Tag) {
+        if isSelectOne {
+            selectedTags = [tag]
+        } else {
+            if selectedTags.contains(tag) {
+                selectedTags.removeAll(where: { $0 == tag })
+            } else {
+                selectedTags.append(tag)
+            }
+        }
+        didChangeSelection(selectedTags)
     }
 }
 
