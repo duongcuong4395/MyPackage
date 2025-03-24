@@ -236,19 +236,21 @@ public struct ChipsView2<Content: View, Tag: Equatable>: View where Tag: Hashabl
 
     public var body: some View {
         CustomChipLayout2(spacing: spacing) {
-            if hasFixedFirstItem, let firstTag = tags.first {
-                chipView(for: firstTag)
-            }
-            
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack {
-                    ForEach(hasFixedFirstItem ? Array(tags.dropFirst()) : tags, id: \.self) { tag in
-                        chipView(for: tag)
-                    }
+            HStack {
+                if hasFixedFirstItem, let firstTag = tags.first {
+                    chipView(for: firstTag)
                 }
                 
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHStack {
+                        ForEach(hasFixedFirstItem ? Array(tags.dropFirst()) : tags, id: \.self) { tag in
+                            chipView(for: tag)
+                        }
+                    }
+                    
+                }
             }
-            .frame(maxHeight: 200) // ✅ Giới hạn chiều cao tối đa, có thể điều chỉnh
+            .frame(maxHeight: 200)
             
         }
     }
