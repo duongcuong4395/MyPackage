@@ -204,6 +204,9 @@ fileprivate struct CustomChipLayout: Layout {
 
 @available(iOS 17.0.0, *)
 public struct ChipsView2<Content: View, Tag: Equatable>: View where Tag: Hashable {
+    
+    
+    public var hasMutiline: Bool = false
     public var hasFixedFirstItem: Bool = false
     public var spacing: CGFloat = 10
     public var animation: Animation = .easeInOut(duration: 0.2)
@@ -216,7 +219,8 @@ public struct ChipsView2<Content: View, Tag: Equatable>: View where Tag: Hashabl
     
     
     public init(
-        hasFixedFirstItem: Bool = false
+        hasMutiline: Bool = false
+        , hasFixedFirstItem: Bool = false
         , spacing: CGFloat = 10
         , animation: Animation = .easeInOut(duration: 0.2)
         , tags: [Tag],
@@ -232,10 +236,17 @@ public struct ChipsView2<Content: View, Tag: Equatable>: View where Tag: Hashabl
         self.isSelectOne = isSelectOne
         self._selectedTags = selectedTags
         self.hasFixedFirstItem = hasFixedFirstItem
+        self.hasMutiline = hasMutiline
     }
 
     public var body: some View {
-        CustomChipLayout2(spacing: spacing) {
+        if hasMutiline {
+            CustomChipLayout2(spacing: spacing) {
+                ForEach(hasFixedFirstItem ? Array(tags.dropFirst()) : tags, id: \.self) { tag in
+                    chipView(for: tag)
+                }
+            }
+        } else {
             HStack {
                 if hasFixedFirstItem, let firstTag = tags.first {
                     chipView(for: firstTag)
@@ -251,7 +262,6 @@ public struct ChipsView2<Content: View, Tag: Equatable>: View where Tag: Hashabl
                 }
             }
             .frame(maxHeight: 200)
-            
         }
     }
     
@@ -278,7 +288,6 @@ public struct ChipsView2<Content: View, Tag: Equatable>: View where Tag: Hashabl
         didChangeSelection(selectedTags)
     }
 }
-
 
 @available(iOS 17.0.0, *)
 fileprivate struct CustomChipLayout2: Layout {
