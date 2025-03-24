@@ -212,6 +212,8 @@ public struct ChipsView2<Content: View, Tag: Equatable>: View where Tag: Hashabl
     public var didChangeSelection: ([Tag]) -> ()
     @Binding public var selectedTags: [Tag]
 
+    @State private var scrollPosition: Tag? // Lưu vị trí tag đầu tiên
+    
     public init(
         spacing: CGFloat = 10
         , animation: Animation = .easeInOut(duration: 0.2)
@@ -250,12 +252,15 @@ public struct ChipsView2<Content: View, Tag: Equatable>: View where Tag: Hashabl
                                 }
                                 didChangeSelection(selectedTags)
                             }
+                            .id(tag)
                     }
                 }
-                
+                .scrollPosition(id: $scrollPosition)
             }
             .frame(maxHeight: 200) // ✅ Giới hạn chiều cao tối đa, có thể điều chỉnh
-            
+            .onAppear{
+                scrollPosition = tags.first
+            }
             
         }
         
