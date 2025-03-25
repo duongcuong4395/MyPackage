@@ -115,9 +115,38 @@ public class APIRequest<Router: HttpRouter> {
 
         request.httpMethod = router.method.rawValue
         request.allHTTPHeaderFields = router.headers?.dictionary
-
+        print("========")
+        print("\nCURL Command:\n", request.curlString())
+        print("========")
+        
         let response = await AF.request(request).serializingData().response
 
         return self.router.handleResponse(with: response.data, error: response.error)
     }
 }
+
+extension URLRequest {
+    func curlString() -> String {
+        var components: [String] = ["curl -X \(self.httpMethod ?? "GET")"]
+        
+        // Thêm headers
+        if let headers = self.allHTTPHeaderFields {
+            for (key, value) in headers {
+                components.append("-H \"\(key): \(value)\"")
+            }
+        }
+        
+        // Thêm body (nếu có)
+        if let body = self.httpBody, let bodyString = String(data: body, encoding: .utf8) {
+            components.append("-d '\(bodyString)'")
+        }
+        
+        // Thêm URL
+        if let url = self.url {
+            components.append("\"\(url.absoluteString)\"")
+        }
+        
+        return components.joined(separator: " \\\n")
+    }
+}
+
