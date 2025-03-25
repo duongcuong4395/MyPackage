@@ -90,8 +90,8 @@ public class APIRequest<Router: HttpRouter> {
                 throw URLError(.badURL)
             }
             
-        print("Endpoint: ", url)
-        print("Headers: ", router.headers ?? [:])
+        //print("Endpoint: ", url)
+        //print("Headers: ", router.headers ?? [:])
 
         var request: URLRequest
         
@@ -127,26 +127,34 @@ public class APIRequest<Router: HttpRouter> {
 
 extension URLRequest {
     func curlString() -> String {
-        var components: [String] = ["curl -X \(self.httpMethod ?? "GET")"]
+        var components: [String] = ["curl --location"]
+        
+        // Thêm method nếu không phải GET (vì mặc định là GET)
+        if let method = self.httpMethod, method != "GET" {
+            components.append("-X \(method)")
+        }
         
         // Thêm headers
         if let headers = self.allHTTPHeaderFields {
             for (key, value) in headers {
-                components.append("-H \"\(key): \(value)\"")
+                components.append("--header '\(key): \(value)'")
             }
         }
         
-        // Thêm body (nếu có)
-        if let body = self.httpBody, let bodyString = String(data: body, encoding: .utf8) {
-            components.append("-d '\(bodyString)'")
+        // Thêm body nếu có (cho POST, PUT, PATCH...)
+        if let body = self.httpBody,
+           let bodyString = String(data: body, encoding: .utf8),
+           !bodyString.isEmpty {
+            components.append("--data '\(bodyString)'")
         }
         
-        // Thêm URL
+        // Thêm URL cuối cùng
         if let url = self.url {
-            components.append("\"\(url.absoluteString)\"")
+            components.append("'\(url.absoluteString)'")
         }
         
         return components.joined(separator: " \\\n")
     }
 }
+
 
