@@ -36,7 +36,9 @@ let package = Package(
             name: "ChipsSelection",
             targets: ["ChipsSelection"]),
         
-        
+        .library(
+            name: "InteractiveSideMenu",
+            targets: ["InteractiveSideMenu"]),
         
         
     ],
@@ -78,6 +80,10 @@ let package = Package(
             dependencies: []),
         .target(
             name: "ChipsSelection",
+            dependencies: []),
+        
+        .target(
+            name: "InteractiveSideMenu",
             dependencies: []),
         
     ]

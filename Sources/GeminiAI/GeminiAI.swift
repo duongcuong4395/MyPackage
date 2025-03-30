@@ -261,7 +261,13 @@ public extension AIChatEvent {
     
     func add(_ message: ChatMessage) {}
     func update(message: ChatMessage, by content: String) {}
-    func resetHistory() {}
+    func resetHistory() {
+        withAnimation(.spring()) {
+            chat?.history = []
+            messages = []
+            promptsSug = []
+        }
+    }
     func addChatHistory(by message: ChatMessage) {}
     func remove(image: UIImage) {}
     
