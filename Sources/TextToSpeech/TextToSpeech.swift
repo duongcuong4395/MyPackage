@@ -64,69 +64,6 @@ public enum SpeechStyle: CaseIterable, Identifiable {
     }
 }
 
-@available(iOS 17.0, *)
-// MARK: - TextToSpeechManager
-@MainActor
-public final class TextToSpeechManager: NSObject, AVSpeechSynthesizerDelegate {
-    public static let shared = TextToSpeechManager()
-
-    private lazy var synthesizer: AVSpeechSynthesizer = {
-        let syn = AVSpeechSynthesizer()
-        syn.delegate = self
-        return syn
-    }()
-    
-    public var onHighlightRange: (@MainActor (NSRange) -> Void)?
-    
-    public func speak(
-        text: String,
-        language: String = "vi-VN",
-        style: SpeechStyle = .friendly,
-        voiceIdentifier: String? = nil
-    ) {
-        if synthesizer.isSpeaking {
-            stopSpeaking()
-            return
-        }
-
-        let utterance = AVSpeechUtterance(string: text)
-        let config = style.config
-        utterance.rate = config.rate
-        utterance.pitchMultiplier = config.pitch
-        utterance.volume = config.volume
-
-        utterance.voice = {
-            if let id = voiceIdentifier {
-                return AVSpeechSynthesisVoice(identifier: id)
-            } else {
-                return AVSpeechSynthesisVoice(language: language)
-            }
-        }()
-
-        synthesizer.speak(utterance)
-    }
-
-    public func stopSpeaking() {
-        synthesizer.stopSpeaking(at: .immediate)
-    }
-
-    nonisolated public func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, willSpeakRangeOfSpeechString range: NSRange, utterance: AVSpeechUtterance) {
-        Task { @MainActor in
-            onHighlightRange?(range)
-        }
-    }
-
-    nonisolated public func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-        Task { @MainActor in
-            onHighlightRange?(NSRange(location: 0, length: 0))
-        }
-    }
-}
-
-
-
-
-
 @available(iOS 17.0.0, *)
 public struct TextToSpeechViewModifier: ViewModifier {
     
@@ -157,24 +94,28 @@ public extension View {
     }
 }
 
-
-
-
-
 import Foundation
 import AVFoundation
 
 @available(iOS 17.0, *)
 // MARK: - TextToSpeechManager
 @MainActor
-public final class TextToSpeechManager2: NSObject, AVSpeechSynthesizerDelegate {
-    public static let shared = TextToSpeechManager2()
+public final class TextToSpeechManager: NSObject, AVSpeechSynthesizerDelegate {
+    public static let shared = TextToSpeechManager()
 
     private let synthesizer = AVSpeechSynthesizer()
     private var fullText: NSString = ""
     
     public var onHighlightRange: ((NSRange) -> Void)?
     public var onFinish: (() -> Void)?
+    
+    public enum TTSState {
+        case idle
+        case speaking
+        case paused
+    }
+
+    @Published public private(set) var state: TTSState = .idle
     
     override private init() {
         super.init()
@@ -204,10 +145,26 @@ public final class TextToSpeechManager2: NSObject, AVSpeechSynthesizerDelegate {
             : AVSpeechSynthesisVoice(language: language)
 
         synthesizer.speak(utterance)
+        state = .speaking
     }
 
     public func stopSpeaking() {
         synthesizer.stopSpeaking(at: .immediate)
+        state = .idle
+    }
+    
+    public func pause() {
+        if synthesizer.isSpeaking {
+            synthesizer.pauseSpeaking(at: .word)
+            state = .paused
+        }
+    }
+
+    public func resume() {
+        if state == .paused {
+            synthesizer.continueSpeaking()
+            state = .speaking
+        }
     }
 
     // MARK: - AVSpeechSynthesizerDelegate
@@ -231,6 +188,7 @@ public final class TextToSpeechManager2: NSObject, AVSpeechSynthesizerDelegate {
         Task { @MainActor in
             onHighlightRange?(NSRange(location: 0, length: 0)) // clear
             onFinish?()
+            state = .idle
         }
         
     }
