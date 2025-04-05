@@ -69,7 +69,9 @@ public final class TextToSpeechManager {
     @MainActor public static let shared = TextToSpeechManager()
     private let synthesizer = AVSpeechSynthesizer()
 
-    private init() {}
+    private init() {
+        //synthesizer.delegate = self
+    }
 
     public func speak(
         text: String,
@@ -77,6 +79,11 @@ public final class TextToSpeechManager {
         style: SpeechStyle = .friendly,
         voiceIdentifier: String? = nil
     ) {
+        if synthesizer.isSpeaking {
+            stopSpeaking()
+            return
+        }
+        
         let utterance = AVSpeechUtterance(string: text)
         let config = style.config
 
