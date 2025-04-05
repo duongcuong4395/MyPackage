@@ -156,3 +156,82 @@ public extension View {
         self.modifier(TextToSpeechViewModifier(text: text, style: style))
     }
 }
+
+
+
+
+
+import Foundation
+import AVFoundation
+
+@available(iOS 17.0, *)
+// MARK: - TextToSpeechManager
+@MainActor
+public final class TextToSpeechManager2: NSObject, AVSpeechSynthesizerDelegate {
+    public static let shared = TextToSpeechManager2()
+
+    private let synthesizer = AVSpeechSynthesizer()
+    private var fullText: NSString = ""
+    
+    public var onHighlightRange: ((NSRange) -> Void)?
+    public var onFinish: (() -> Void)?
+    
+    override private init() {
+        super.init()
+        synthesizer.delegate = self
+    }
+
+    public func speak(
+        text: String,
+        language: String = "vi-VN",
+        style: SpeechStyle = .friendly,
+        voiceIdentifier: String? = nil
+    ) {
+        if synthesizer.isSpeaking {
+            stopSpeaking()
+            return
+        }
+
+        fullText = NSString(string: text)
+        let utterance = AVSpeechUtterance(string: text)
+        let config = style.config
+
+        utterance.rate = config.rate
+        utterance.pitchMultiplier = config.pitch
+        utterance.volume = config.volume
+        utterance.voice = voiceIdentifier != nil
+            ? AVSpeechSynthesisVoice(identifier: voiceIdentifier!)
+            : AVSpeechSynthesisVoice(language: language)
+
+        synthesizer.speak(utterance)
+    }
+
+    public func stopSpeaking() {
+        synthesizer.stopSpeaking(at: .immediate)
+    }
+
+    // MARK: - AVSpeechSynthesizerDelegate
+
+    nonisolated public func speechSynthesizer(
+        _ synthesizer: AVSpeechSynthesizer,
+        willSpeakRangeOfSpeechString characterRange: NSRange,
+        utterance: AVSpeechUtterance
+    ) {
+        Task { @MainActor in
+            //onHighlightRange?(range)
+            onHighlightRange?(characterRange)
+        }
+        
+    }
+
+    nonisolated public func speechSynthesizer(
+        _ synthesizer: AVSpeechSynthesizer,
+        didFinish utterance: AVSpeechUtterance
+    ) {
+        Task { @MainActor in
+            onHighlightRange?(NSRange(location: 0, length: 0)) // clear
+            onFinish?()
+        }
+        
+    }
+}
