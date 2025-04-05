@@ -64,18 +64,23 @@ public enum SpeechStyle: CaseIterable, Identifiable {
     }
 }
 
+@available(iOS 17.0, *)
 // MARK: - TextToSpeechManager
-public final class TextToSpeechManager {
-    @MainActor public static let shared = TextToSpeechManager()
-    private let synthesizer = AVSpeechSynthesizer()
+@MainActor
+public final class TextToSpeechManager: NSObject, AVSpeechSynthesizerDelegate {
+    public static let shared = TextToSpeechManager()
 
-    private init() {
-        //synthesizer.delegate = self
-    }
-
+    private lazy var synthesizer: AVSpeechSynthesizer = {
+        let syn = AVSpeechSynthesizer()
+        syn.delegate = self
+        return syn
+    }()
+    
+    public var onHighlightRange: (@MainActor (NSRange) -> Void)?
+    
     public func speak(
         text: String,
-        language: String = "vi-VN", // "en-US",
+        language: String = "vi-VN",
         style: SpeechStyle = .friendly,
         voiceIdentifier: String? = nil
     ) {
@@ -83,13 +88,13 @@ public final class TextToSpeechManager {
             stopSpeaking()
             return
         }
-        
+
         let utterance = AVSpeechUtterance(string: text)
         let config = style.config
-
         utterance.rate = config.rate
         utterance.pitchMultiplier = config.pitch
         utterance.volume = config.volume
+
         utterance.voice = {
             if let id = voiceIdentifier {
                 return AVSpeechSynthesisVoice(identifier: id)
@@ -104,21 +109,23 @@ public final class TextToSpeechManager {
     public func stopSpeaking() {
         synthesizer.stopSpeaking(at: .immediate)
     }
-    
-    func speak(_ text: String, style: SpeechStyle, language: String = "vi-VN") {
-        let utterance = AVSpeechUtterance(string: text)
-        let config = style.config
 
-        utterance.voice = AVSpeechSynthesisVoice(language: language)
-        utterance.rate = config.rate
-        utterance.pitchMultiplier = config.pitch
-        utterance.volume = config.volume
-
-        let synthesizer = AVSpeechSynthesizer()
-        synthesizer.speak(utterance)
+    nonisolated public func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, willSpeakRangeOfSpeechString range: NSRange, utterance: AVSpeechUtterance) {
+        Task { @MainActor in
+            onHighlightRange?(range)
+        }
     }
 
+    nonisolated public func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        Task { @MainActor in
+            onHighlightRange?(NSRange(location: 0, length: 0))
+        }
+    }
 }
+
+
+
+
 
 @available(iOS 17.0.0, *)
 public struct TextToSpeechViewModifier: ViewModifier {
