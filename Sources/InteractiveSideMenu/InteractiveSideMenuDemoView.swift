@@ -11,7 +11,9 @@ import SwiftUI
 public struct InteractiveSideMenuDemoView: View {
     @State private var showMenu: Bool = true
     
-    public init() {}
+    public init(showMenu: Bool) {
+        self.showMenu = showMenu
+    }
     
     public var body: some View {
         AnimatedSideBar(

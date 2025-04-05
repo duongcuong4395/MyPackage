@@ -39,7 +39,12 @@ let package = Package(
         .library(
             name: "InteractiveSideMenu",
             targets: ["InteractiveSideMenu"]),
-        
+        .library(
+            name: "TripCard",
+            targets: ["TripCard"]),
+        .library(
+            name: "TextToSpeech",
+            targets: ["TextToSpeech"]),
         
     ],
     dependencies: [
@@ -84,6 +89,13 @@ let package = Package(
         
         .target(
             name: "InteractiveSideMenu",
+            dependencies: []),
+        
+        .target(
+            name: "TripCard",
+            dependencies: []),
+        .target(
+            name: "TextToSpeech",
             dependencies: []),
         
     ]
