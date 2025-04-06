@@ -120,6 +120,16 @@ public final class TextToSpeechManager: NSObject, AVSpeechSynthesizerDelegate {
     override private init() {
         super.init()
         synthesizer.delegate = self
+        setupAudioSession()
+    }
+    
+    private func setupAudioSession() {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, options: [.duckOthers])
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("❌ Failed to set up audio session: \(error.localizedDescription)")
+        }
     }
 
     public func speak(
@@ -132,6 +142,8 @@ public final class TextToSpeechManager: NSObject, AVSpeechSynthesizerDelegate {
             stopSpeaking()
             return
         }
+        
+        setupAudioSession() // Re-ensure session is active
 
         fullText = NSString(string: text)
         let utterance = AVSpeechUtterance(string: text)
