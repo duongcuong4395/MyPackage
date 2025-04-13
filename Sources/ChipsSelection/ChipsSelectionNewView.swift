@@ -47,19 +47,24 @@ public struct ChipsView<Content: View, Tag: Equatable>: View where Tag: Hashable
     
     
     public var body: some View {
+        
         Group {
             switch scrollType {
             case .none:
                 contentLayout()
             case .vertical:
+                
                 ScrollView(.vertical, showsIndicators: false) {
                     contentLayout()
+                        .id("chipList")
                 }
+                
             case .horizontal:
                 ScrollView(.horizontal, showsIndicators: false) {
                     contentLayout()
                 }
             }
+            
         }
         /*
         CustomChipLayout(spacing: spacing) {

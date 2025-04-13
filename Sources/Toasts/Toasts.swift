@@ -191,7 +191,7 @@ fileprivate struct ToastView: View {
             }
             
             Text(item.title)
-                .lineLimit(1    )
+                //.lineLimit(1    )
         }
         .foregroundStyle(item.tint)
         .padding(.horizontal, 15)
