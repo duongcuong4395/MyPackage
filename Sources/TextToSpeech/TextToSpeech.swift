@@ -107,6 +107,9 @@ public final class TextToSpeechManager: NSObject, AVSpeechSynthesizerDelegate {
     private var fullText: NSString = ""
     
     public var onHighlightRange: ((NSRange) -> Void)?
+    
+    //public var onSpeechRange: ((NSRange) -> Void)?
+    
     public var onFinish: (() -> Void)?
     
     public enum TTSState {
