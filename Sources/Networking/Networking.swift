@@ -46,7 +46,6 @@ extension HttpRouter {
             let result = try decoder.decode(responseDataType.self, from: data)
             return .Successs(result)
         } catch {
-            print("=== Decoding.error", responseDataType.self, error)
             return .Failure(APIError.DecodingError)
         }
     }
@@ -63,24 +62,14 @@ public class APIRequest<Router: HttpRouter> {
     
     @available(iOS 13.0.0, *)
     public func callAPI2() async throws -> APIResult<Router.responseDataType> {
-        // Tạo URL từ router
         guard let url = try? router.baseURL.asURL().appendingPathComponent(router.path) else {
             throw URLError(.badURL)
         }
         
-        
-        print("Endpoint: ", url)
-        print("Headers: ", router.headers ?? [:])
-
-        
-        
-        // Gửi yêu cầu và đợi kết quả
         let response = await AF.request(url, method: router.method, parameters: router.parameters, headers: router.headers).serializingData().response
 
-        // Kiểm tra kết quả trả về từ server
         let result = self.router.handleResponse(with: response.data, error: response.error)
         
-        // Trả về kết quả
         return result
     }
     
@@ -89,14 +78,10 @@ public class APIRequest<Router: HttpRouter> {
         guard let url = try? router.baseURL.asURL().appendingPathComponent(router.path) else {
                 throw URLError(.badURL)
             }
-            
-        //print("Endpoint: ", url)
-        //print("Headers: ", router.headers ?? [:])
 
         var request: URLRequest
         
         if router.method == .get {
-            // Nếu là GET, thêm query parameters vào URL
             var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
             if let parameters = router.parameters as? [String: Any] {
                 components?.queryItems = parameters.map { key, value in
@@ -105,55 +90,17 @@ public class APIRequest<Router: HttpRouter> {
             }
             request = URLRequest(url: components?.url ?? url)
         } else {
-            // Nếu là POST, gửi body
             request = URLRequest(url: url)
             if let body = router.body {
                 request.httpBody = body
-                print("Body JSON: ", String(data: body, encoding: .utf8) ?? "Invalid JSON")
             }
         }
 
         request.httpMethod = router.method.rawValue
         request.allHTTPHeaderFields = router.headers?.dictionary
-        print("========")
-        print("\nCURL Command:\n", request.curlString())
-        print("========")
-        
         let response = await AF.request(request).serializingData().response
 
         return self.router.handleResponse(with: response.data, error: response.error)
-    }
-}
-
-extension URLRequest {
-    func curlString() -> String {
-        var components: [String] = ["curl --location"]
-        
-        // Thêm method nếu không phải GET (vì mặc định là GET)
-        if let method = self.httpMethod, method != "GET" {
-            components.append("-X \(method)")
-        }
-        
-        // Thêm headers
-        if let headers = self.allHTTPHeaderFields {
-            for (key, value) in headers {
-                components.append("--header '\(key): \(value)'")
-            }
-        }
-        
-        // Thêm body nếu có (cho POST, PUT, PATCH...)
-        if let body = self.httpBody,
-           let bodyString = String(data: body, encoding: .utf8),
-           !bodyString.isEmpty {
-            components.append("--data '\(bodyString)'")
-        }
-        
-        // Thêm URL cuối cùng
-        if let url = self.url {
-            components.append("'\(url.absoluteString)'")
-        }
-        
-        return components.joined(separator: " \\\n")
     }
 }
 

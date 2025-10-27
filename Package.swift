@@ -10,6 +10,9 @@ let package = Package(
         .library(
             name: "MyLibrary",
             targets: ["MyLibrary"]),
+        
+        .library(name: "Networking", targets: ["Networking"]),
+        
         .library(
             name: "GeminiAI",
             targets: ["GeminiAI"]),
@@ -54,12 +57,13 @@ let package = Package(
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
-        .target(
-            name: "MyLibrary",
-            dependencies: [
-                            // Liên kết target với Alamofire
-                            "Alamofire"
-                        ]),
+        
+        // Liên kết target với Alamofire
+        .target(name: "MyLibrary", dependencies: ["Alamofire"]),
+        .target(name: "Networking", dependencies: ["Alamofire"]),
+        
+        
+        
         .target(
             name: "GeminiAI",
             dependencies: [
