@@ -49,6 +49,7 @@ extension HttpRouter {
     }
 }
 
+@available(iOS 13.0.0, *)
 public class APIRequest<Router: HttpRouter> {
     public let router: Router
     
@@ -56,7 +57,6 @@ public class APIRequest<Router: HttpRouter> {
         self.router = router
     }
     
-    @available(iOS 13.0.0, *)
     public func callAPI() async throws -> APIResult<Router.responseDataType> {
         guard let url = try? router.baseURL.asURL().appendingPathComponent(router.path) else {
                 throw URLError(.badURL)
@@ -66,7 +66,7 @@ public class APIRequest<Router: HttpRouter> {
         
         if router.method == .get {
             var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
-            if let parameters = router.parameters as? [String: Any] {
+            if let parameters = router.parameters {
                 components?.queryItems = parameters.map { key, value in
                     URLQueryItem(name: key, value: "\(value)")
                 }
@@ -104,6 +104,7 @@ public extension APIExecution {
     }
 }
 
+@available(iOS 13.0.0, *)
 extension APIRequest {
     @available(iOS 13.0.0, *)
     public func callAPI2() async throws -> APIResult<Router.responseDataType> {
