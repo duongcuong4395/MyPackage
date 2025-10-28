@@ -10,10 +10,12 @@ import SwiftUI
 
 // MARK: - Base Implementation
 @available(iOS 16.0, *)
-public class BaseRouter<Route: Hashable>: Router, ObservableObject {
+open class BaseRouter<Route: Hashable>: Router, ObservableObject {
     @Published public var path = NavigationPath()
     
     @Published private var routeStack: [Route] = []
+    
+    
     
     var currentRoute: Route? {
         return routeStack.last
@@ -161,5 +163,8 @@ public class BaseRouter<Route: Hashable>: Router, ObservableObject {
     /// Get routes from root to current position
     var routesFromRoot: [Route] {
         return routeStack
+    }
+    
+    public init() {
     }
 }
