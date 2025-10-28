@@ -103,19 +103,3 @@ public extension APIExecution {
         }
     }
 }
-
-@available(iOS 13.0.0, *)
-extension APIRequest {
-    @available(iOS 13.0.0, *)
-    public func callAPI2() async throws -> APIResult<Router.responseDataType> {
-        guard let url = try? router.baseURL.asURL().appendingPathComponent(router.path) else {
-            throw URLError(.badURL)
-        }
-        
-        let response = await AF.request(url, method: router.method, parameters: router.parameters, headers: router.headers).serializingData().response
-
-        let result = self.router.handleResponse(with: response.data, error: response.error)
-        
-        return result
-    }
-}

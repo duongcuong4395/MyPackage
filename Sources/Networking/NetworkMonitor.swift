@@ -24,7 +24,7 @@ public class NetworkMonitor: ObservableObject {
         case wifi = "WiFi"
         case cellular = "Cellular"
         case wiredEthernet = "Ethernet"
-        case unknown = "Không xác định"
+        case unknown = "Unknown"
     }
     
     public init() {

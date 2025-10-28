@@ -13,7 +13,7 @@ let package = Package(
         
         .library(name: "Networking", targets: ["Networking"]),
         .library(name: "NavigationRouter", targets: ["NavigationRouter"]),
-        
+        .library(name: "UIComponents", targets: ["UIComponents"]),
         
         .library(
             name: "GeminiAI",
@@ -30,26 +30,9 @@ let package = Package(
         .library(
             name: "DeviceRotation",
             targets: ["DeviceRotation"]),
-        .library(
-            name: "OTPCode",
-            targets: ["OTPCode"]),
-        .library(
-            name: "Toasts",
-            targets: ["Toasts"]),
+        .library(name: "OTPCode", targets: ["OTPCode"]),
         
-        .library(
-            name: "ChipsSelection",
-            targets: ["ChipsSelection"]),
-        
-        .library(
-            name: "InteractiveSideMenu",
-            targets: ["InteractiveSideMenu"]),
-        .library(
-            name: "TripCard",
-            targets: ["TripCard"]),
-        .library(
-            name: "TextToSpeech",
-            targets: ["TextToSpeech"]),
+        .library(name: "TextToSpeech", targets: ["TextToSpeech"]),
         
     ],
     dependencies: [
@@ -63,12 +46,13 @@ let package = Package(
         .target(name: "MyLibrary", dependencies: ["Alamofire"]),
         .target(name: "Networking", dependencies: ["Alamofire"]),
         .target(name: "NavigationRouter", dependencies: []),
+        .target(name: "UIComponents", dependencies: []),
         
         .target(
             name: "GeminiAI",
             dependencies: [
                 .product(name: "GoogleGenerativeAI", package: "generative-ai-swift")
-                        ]),
+            ]),
         .target(
             name: "RoutablePage",
             dependencies: []),
@@ -84,23 +68,13 @@ let package = Package(
         .target(
             name: "OTPCode",
             dependencies: []),
-        .target(
-            name: "Toasts",
-            dependencies: []),
-        .target(
-            name: "ChipsSelection",
-            dependencies: []),
         
-        .target(
-            name: "InteractiveSideMenu",
-            dependencies: []),
+        //.target(name: "Toasts", dependencies: []),
+        //.target(name: "ChipsSelection", dependencies: []),
+        //.target(name: "InteractiveSideMenu", dependencies: []),
+        //.target(name: "TripCard", dependencies: []),
         
-        .target(
-            name: "TripCard",
-            dependencies: []),
-        .target(
-            name: "TextToSpeech",
-            dependencies: []),
+        .target(name: "TextToSpeech", dependencies: []),
         
     ]
 )
