@@ -26,7 +26,7 @@ public class BaseRouter<Route: Hashable>: Router, ObservableObject {
         return "Root"
     }
     
-   func isCurrentRoute(_ route: Route) -> Bool {
+    public func isCurrentRoute(_ route: Route) -> Bool {
        return currentRoute == route
    }
    
@@ -79,7 +79,7 @@ public class BaseRouter<Route: Hashable>: Router, ObservableObject {
     /// - Parameter route: The route to navigate to
     /// - Returns: Bool indicating if route was found in stack (true) or pushed (false)
     @discardableResult
-    func navigateToOrPush(_ route: Route) -> Bool {
+    public func navigateToOrPush(_ route: Route) -> Bool {
         if let existingIndex = routeStack.firstIndex(of: route) {
             // Route exists in stack, navigate to it
             navigateToExisting(at: existingIndex)
