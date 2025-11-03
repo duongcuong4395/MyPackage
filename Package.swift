@@ -11,6 +11,8 @@ let package = Package(
             name: "MyLibrary",
             targets: ["MyLibrary"]),
         
+        
+        .library(name: "CoreDataKit", targets: ["CoreDataKit"]),
         .library(name: "Networking", targets: ["Networking"]),
         .library(name: "NavigationRouter", targets: ["NavigationRouter"]),
         .library(name: "UIComponents", targets: ["UIComponents"]),
@@ -44,6 +46,8 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         
         .target(name: "MyLibrary", dependencies: ["Alamofire"]),
+        .target(name: "CoreDataKit", dependencies: []),
+        
         .target(name: "Networking", dependencies: ["Alamofire"]),
         .target(name: "NavigationRouter", dependencies: []),
         .target(name: "UIComponents", dependencies: []),

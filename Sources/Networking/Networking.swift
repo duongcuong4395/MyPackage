@@ -17,22 +17,28 @@ public enum APIError: Error {
     case DataFail
     case DecodingError
     case requestError(AFError)
+    
 }
 
+
 public protocol HttpRouter {
-    associatedtype responseDataType: Decodable
+    associatedtype ResponseType: Decodable
+    associatedtype BodyType: RequestBody
+    
     var baseURL: String { get }
     var path: String { get }
     var method: HTTPMethod { get }
     var headers: HTTPHeaders? { get }
     var parameters: Parameters? { get }
     var body: Data? { get }
+    //var body: BodyType? { get }
     
-    func handleResponse(with data: Data?, error: AFError?) -> APIResult<responseDataType>
+    
+    func handleResponse(with data: Data?, error: AFError?) -> APIResult<ResponseType>
 }
 
 extension HttpRouter {
-    public func handleResponse(with data: Data?, error: AFError?) -> APIResult<responseDataType> {
+    public func handleResponse(with data: Data?, error: AFError?) -> APIResult<ResponseType> {
         if let err = error {
             return .Failure(APIError.requestError(err))
         }
@@ -41,7 +47,7 @@ extension HttpRouter {
         
         do {
             let decoder = JSONDecoder()
-            let result = try decoder.decode(responseDataType.self, from: data)
+            let result = try decoder.decode(ResponseType.self, from: data)
             return .Successs(result)
         } catch {
             return .Failure(APIError.DecodingError)
@@ -57,7 +63,7 @@ public class APIRequest<Router: HttpRouter> {
         self.router = router
     }
     
-    public func callAPI() async throws -> APIResult<Router.responseDataType> {
+    public func callAPI() async throws -> APIResult<Router.ResponseType> {
         guard let url = try? router.baseURL.asURL().appendingPathComponent(router.path) else {
                 throw URLError(.badURL)
             }
@@ -92,7 +98,7 @@ public protocol APIExecution {}
 
 @available(iOS 13.0.0, *)
 public extension APIExecution {
-    func sendRequest<T: Decodable, R: HttpRouter>(for endpoint: R) async throws -> T where R.responseDataType == T {
+    func sendRequest<T: Decodable, R: HttpRouter>(for endpoint: R) async throws -> T where R.ResponseType == T {
         let request = APIRequest(router: endpoint)
         let result = try await request.callAPI()
         switch result {

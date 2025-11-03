@@ -125,7 +125,7 @@ fileprivate struct CustomSwipeActionModifier: ViewModifier {
                 
                 
                 GeometryReader { proxy in
-                    let size = proxy.size // Lỗi tại đây: size chưa được khởi tạo
+                    let size = proxy.size
                     let spacing = config.spacing * CGFloat(index)
                     let offset = (CGFloat(index) * size.width) + spacing
 
@@ -235,7 +235,6 @@ fileprivate struct CustomSwipeActionModifier: ViewModifier {
     }
     */
 
-    
     func reset() {
         withAnimation(.snappy(duration: 0.3, extraBounce: 0)) {
             offsetX = 0
@@ -254,6 +253,7 @@ fileprivate struct CustomSwipeActionModifier: ViewModifier {
         let spacing = config.spacing * CGFloat(actions.count - 1)
         return totalActionSize + spacing + config.leadingPadding + config.trailingPadding
     }
+    
     /*
     var maxOffsetWidth: CGFloat {
         if let cachedWidth = cachedMaxOffsetWidth {
@@ -269,4 +269,5 @@ fileprivate struct CustomSwipeActionModifier: ViewModifier {
     
     @State private var cachedMaxOffsetWidth: CGFloat?
     */
+    
 }
