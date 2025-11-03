@@ -22,32 +22,7 @@ import SwiftUI
 @preconcurrency import CoreData
 import OSLog
 
-// MARK: - Logging System
 
-/// Unified logging for CoreData operations
-@available(iOS 16.0, *)
-public struct CoreDataLogger {
-    private static let logger = Logger(subsystem: "com.app.coredata", category: "operations")
-    
-    public enum LogLevel {
-        case debug, info, warning, error
-    }
-    
-    public static func log(_ message: String, level: LogLevel = .info, metadata: [String: Any] = [:]) {
-        let metadataStr = metadata.isEmpty ? "" : " | \(metadata)"
-        
-        switch level {
-        case .debug:
-            logger.debug("\(message)\(metadataStr)")
-        case .info:
-            logger.info("\(message)\(metadataStr)")
-        case .warning:
-            logger.warning("\(message)\(metadataStr)")
-        case .error:
-            logger.error("\(message)\(metadataStr)")
-        }
-    }
-}
 
 // MARK: - Performance Metrics
 @available(iOS 16.0, *)
@@ -70,45 +45,7 @@ public struct PerformanceMetrics {
     }
 }
 
-// MARK: - Context Pool (Singleton)
 
-/// Reusable context pool to reduce overhead
-@available(iOS 16.0, *)
-public class CoreDataContextPool {
-    nonisolated(unsafe) public static let shared = CoreDataContextPool()
-    
-    private var availableContexts: [NSManagedObjectContext] = []
-    private let queue = DispatchQueue(label: "com.coredata.pool", attributes: .concurrent)
-    private let maxPoolSize = 5
-    
-    public init() {}
-    
-    func getContext(parent: NSManagedObjectContext) -> NSManagedObjectContext {
-        return queue.sync(flags: .barrier) {
-            if let context = availableContexts.popLast() {
-                context.parent = parent
-                return context
-            }
-            
-            let newContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
-            newContext.parent = parent
-            return newContext
-        }
-    }
-    
-    func returnContext(_ context: NSManagedObjectContext) {
-        queue.async(flags: .barrier) { //[weak self] in
-            //guard let self = self else { return }
-            
-            context.reset() // Clear memory
-            context.parent = nil
-            let pool = CoreDataContextPool.shared
-            if pool.availableContexts.count < pool.maxPoolSize {
-                pool.availableContexts.append(context)
-            }
-        }
-    }
-}
 
 // MARK: - Improved Error Types
 
