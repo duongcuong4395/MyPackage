@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import Combine
 
 // MARK: - Base Implementation
 @available(iOS 16.0, *)
@@ -15,7 +15,7 @@ open class BaseRouter<Route: Hashable>: Router, ObservableObject {
     
     @Published private var routeStack: [Route] = []
     
-    
+    private var cancellables = Set<AnyCancellable>()
     
     var currentRoute: Route? {
         return routeStack.last
@@ -166,5 +166,31 @@ open class BaseRouter<Route: Hashable>: Router, ObservableObject {
     }
     
     public init() {
+        // Listen to path changes to sync routeStack
+        setupPathObserver()
+    }
+    
+    // MARK: - Path Synchronization
+    private func setupPathObserver() {
+        $path
+            .dropFirst() // Skip initial value
+            .sink { [weak self] newPath in
+                self?.syncRouteStack(with: newPath)
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func syncRouteStack(with path: NavigationPath) {
+        // If path count is less than routeStack, user used native back button
+        let pathCount = path.count
+        let stackCount = routeStack.count
+        
+        if pathCount < stackCount {
+            // Remove the difference from routeStack
+            let difference = stackCount - pathCount
+            routeStack.removeLast(difference)
+        }
+        // Note: When pushing, we handle it in push() method
+        // so we don't need to do anything here for additions
     }
 }
