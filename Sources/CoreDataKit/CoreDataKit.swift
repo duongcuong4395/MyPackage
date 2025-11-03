@@ -638,4 +638,14 @@ let predicate = SafePredicateBuilder.and(
 )
 let deleteResult = try await TrafficEvent.batchDelete(predicate: predicate, context: context)
 
+ // Delete all entities of a type
+ let deleteAllPredicate = NSPredicate(value: true) // Matches everything
+
+ let result = try await TrafficEvent.batchDelete(
+     predicate: deleteAllPredicate,
+     context: context
+ )
+
+ print(result.message) // "Deleted 1500 objects"
+ 
 */

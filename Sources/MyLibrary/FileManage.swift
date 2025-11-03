@@ -19,9 +19,8 @@ public class FileManage: FileManaging {
     private let trafficDirectory: URL
     
     public init() {
-            // Xác định đường dẫn tới thư mục Resource/Traffic trong bundle
             if let bundlePath = Bundle.main.resourcePath {
-                // Tạo URL cho thư mục Traffic
+                
                 trafficDirectory = URL(fileURLWithPath: bundlePath).appendingPathComponent("Resources/Traffic")
             } else {
                 fatalError("Resource path not found")
