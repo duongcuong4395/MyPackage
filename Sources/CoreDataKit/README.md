@@ -53,7 +53,7 @@
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/your-username/CoreDataKit.git", from: "1.0.0")
+    .package(url: "https://github.com/duongcuong4395/CoreDataKit.git", from: "1.0.0")
 ]
 ```
 
