@@ -47,3 +47,53 @@ public extension NSManagedObjectContext {
         }
     }
 }
+
+extension NSManagedObjectContext {
+    
+    public func doesEntityExist<Entity: NSManagedObject>(ofType entityType: Entity.Type, with predicate: NSPredicate?) -> (result: Bool, models: [Entity]) {
+        do {
+            let fetchRequest = NSFetchRequest<Entity>(entityName: String(describing: entityType))
+            fetchRequest.predicate = predicate
+            fetchRequest.fetchLimit = 1
+            
+            let results = try self.fetch(fetchRequest)
+            
+            return (!results.isEmpty, results)
+        } catch {
+            print("Error fetching: \(error)")
+            return (false, [])
+        }
+    }
+    
+    public func getEntities<Entity: NSManagedObject>(ofType entityType: Entity.Type, with condition: NSPredicate?) -> (result: Bool, models: [Entity]) {
+        let fetchRequest = NSFetchRequest<Entity>(entityName: String(describing: entityType))
+        fetchRequest.predicate = condition
+
+        do {
+            let results = try self.fetch(fetchRequest)
+            return (!results.isEmpty, results)
+        } catch {
+            print("Error fetching: \(error)")
+            return (false, [])
+        }
+    }
+    
+    public func removeAllEntities<Entity: NSManagedObject>(ofType entityType: Entity.Type) -> Bool {
+            let fetchRequest = NSFetchRequest<Entity>(entityName: String(describing: entityType))
+            
+            do {
+                let results = try self.fetch(fetchRequest)
+                
+                for object in results {
+                    self.delete(object)
+                }
+                
+                try self.save()
+                
+                return true
+            } catch {
+                print("Error removing all entities: \(error)")
+                return false
+            }
+        }
+}
