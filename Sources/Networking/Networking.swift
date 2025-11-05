@@ -23,7 +23,6 @@ public enum APIError: Error {
 
 public protocol HttpRouter {
     associatedtype ResponseType: Decodable
-    associatedtype BodyType: RequestBody
     
     var baseURL: String { get }
     var path: String { get }
