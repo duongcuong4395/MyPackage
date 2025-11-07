@@ -39,7 +39,7 @@ public struct UIGlassDemoApp: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                UIGlassNavigationBar(title: "Theme UI Glass Demo") {
+                UIGlassNavigationBar(title: "Theme Glass Demo") {
                     ScrollView {
                         LazyVStack(spacing: 20) {
                             introSection
@@ -292,7 +292,7 @@ public struct UIGlassDemoApp: View {
                         .buttonStyle(.bordered)
                         
                         Button("Simulate") {
-                            //simulateProgress()
+                            simulateProgress()
                         }
                         .buttonStyle(.borderedProminent)
                     }
@@ -444,6 +444,7 @@ public struct UIGlassDemoApp: View {
     
     // MARK: - Helper Methods
     
+    
     /*
     private func simulateProgress() {
         progressValue = 0
@@ -458,6 +459,21 @@ public struct UIGlassDemoApp: View {
         }
     }
     */
+    
+    private func simulateProgress() {
+        progressValue = 0
+        Task {
+            while progressValue < 1.0 {
+                try? await Task.sleep(for: .milliseconds(50))
+                await MainActor.run {
+                    withAnimation {
+                        progressValue += 0.02
+                    }
+                }
+            }
+        }
+    }
+    
 }
 
 // MARK: - Helper Views
