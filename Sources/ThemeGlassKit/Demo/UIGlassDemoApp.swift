@@ -444,22 +444,6 @@ public struct UIGlassDemoApp: View {
     
     // MARK: - Helper Methods
     
-    
-    /*
-    private func simulateProgress() {
-        progressValue = 0
-        Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
-            withAnimation {
-                progressValue += 0.02
-            }
-            
-            if progressValue >= 1.0 {
-                timer.invalidate()
-            }
-        }
-    }
-    */
-    
     private func simulateProgress() {
         progressValue = 0
         Task {
