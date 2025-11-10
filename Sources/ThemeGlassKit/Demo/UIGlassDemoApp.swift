@@ -83,7 +83,7 @@ public struct UIGlassDemoApp: View {
         UIGlassCard(elevation: 2.0) {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Image(systemName: "sparkles")
+                    Image(systemName: "eyeglasses")
                         .foregroundColor(.blue)
                         .font(.title)
                     

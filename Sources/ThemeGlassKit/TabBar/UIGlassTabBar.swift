@@ -10,13 +10,15 @@ import SwiftUI
 // MARK: - Optimized Tab Bar (Uncommented & Fixed)
 @available(iOS 17.0, *)
 public struct UIGlassTabBar: View {
+    public var intensity: Double = 1.0
     @Binding var selection: Int
     let items: [TabItem2]
     
     @State private var activeIndicatorOffset: CGFloat = 0
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
-    public init(selection: Binding<Int>, items: [TabItem2]) {
+    public init(intensity: Double = 1.0, selection: Binding<Int>, items: [TabItem2]) {
+        self.intensity = intensity
         self._selection = selection
         self.items = items
     }
@@ -43,7 +45,7 @@ public struct UIGlassTabBar: View {
             .padding(.vertical, 8)
             .modifier(
                 UIGlassMaterial(
-                    intensity: 1.0,
+                    intensity: intensity,
                     tintColor: .white,
                     isInteractive: false
                 )
