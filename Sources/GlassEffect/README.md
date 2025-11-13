@@ -38,7 +38,7 @@ Or add to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "[YOUR_REPOSITORY_URL](https://github.com/duongcuong4395/MyPackage)", from: "1.0.0")
+    .package(url: "[https://github.com/duongcuong4395/MyPackage](https://github.com/duongcuong4395/MyPackage)", from: "1.0.0")
 ]
 ```
 
