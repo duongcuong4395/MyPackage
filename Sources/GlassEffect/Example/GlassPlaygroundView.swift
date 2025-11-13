@@ -426,7 +426,7 @@ public struct GlassPlaygroundView: View {
     }
     
     private func generateCode() -> String {
-        var code = ".modifier(UIGlassMaterial(\n"
+        var code = ".modifier(GlassEffect(\n"
         code += "    cornerRadius: \(Int(cornerRadius)),\n"
         code += "    intensity: \(String(format: "%.2f", intensity)),\n"
         code += "    tintColor: .\(colorName(tintColor)),\n"
