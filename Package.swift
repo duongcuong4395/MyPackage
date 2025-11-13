@@ -15,7 +15,9 @@ let package = Package(
         .library(name: "CoreDataKit", targets: ["CoreDataKit"]),
         .library(name: "Networking", targets: ["Networking"]),
         .library(name: "NavigationRouter", targets: ["NavigationRouter"]),
-        .library(name: "ThemeGlassKit", targets: ["ThemeGlassKit"]),
+        //.library(name: "ThemeGlassKit", targets: ["ThemeGlassKit"]),
+        .library(name: "GlassEffect", targets: ["GlassEffect"]),
+        
         
         .library(name: "UIComponents", targets: ["UIComponents"]),
         
@@ -52,7 +54,8 @@ let package = Package(
         
         .target(name: "Networking", dependencies: ["Alamofire"]),
         .target(name: "NavigationRouter", dependencies: []),
-        .target(name: "ThemeGlassKit", dependencies: []),
+        //.target(name: "ThemeGlassKit", dependencies: []),
+        .target(name: "GlassEffect", dependencies: []),
         
         .target(name: "UIComponents", dependencies: []),
         
