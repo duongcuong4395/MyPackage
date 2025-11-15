@@ -18,6 +18,7 @@ let package = Package(
         //.library(name: "ThemeGlassKit", targets: ["ThemeGlassKit"]),
         .library(name: "GlassEffect", targets: ["GlassEffect"]),
         .library(name: "AIManageKit", targets: ["AIManageKit"]),
+        .library(name: "MarkdownTypingKit", targets: ["MarkdownTypingKit"]),
         
         
         .library(name: "UIComponents", targets: ["UIComponents"]),
@@ -60,6 +61,9 @@ let package = Package(
         .target(name: "AIManageKit", dependencies: [
             .product(name: "GoogleGenerativeAI", package: "generative-ai-swift")
         ]),
+        .target(name: "MarkdownTypingKit", dependencies: []),
+        
+        
         
         .target(name: "UIComponents", dependencies: []),
         
