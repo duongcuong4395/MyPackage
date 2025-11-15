@@ -17,6 +17,7 @@ let package = Package(
         .library(name: "NavigationRouter", targets: ["NavigationRouter"]),
         //.library(name: "ThemeGlassKit", targets: ["ThemeGlassKit"]),
         .library(name: "GlassEffect", targets: ["GlassEffect"]),
+        .library(name: "AIManageKit", targets: ["AIManageKit"]),
         
         
         .library(name: "UIComponents", targets: ["UIComponents"]),
@@ -56,6 +57,9 @@ let package = Package(
         .target(name: "NavigationRouter", dependencies: []),
         //.target(name: "ThemeGlassKit", dependencies: []),
         .target(name: "GlassEffect", dependencies: []),
+        .target(name: "AIManageKit", dependencies: [
+            .product(name: "GoogleGenerativeAI", package: "generative-ai-swift")
+        ]),
         
         .target(name: "UIComponents", dependencies: []),
         
