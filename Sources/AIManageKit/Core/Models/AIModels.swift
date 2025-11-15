@@ -19,7 +19,7 @@ public struct AIConfiguration: Sendable {
     public let safetySettings: [AISafetySetting]
     
     public init(
-        model: AIModelType = .gemini25Flash,
+        model: AIModelType = .gemini25FlashLite,
         temperature: Float = 1.0,
         topP: Float = 0.95,
         topK: Int = 64,
@@ -68,6 +68,15 @@ public struct AIModelType: Sendable, Hashable, Codable {
     }
     
     // MARK: - Predefined Models
+    
+    
+    public static let gemini25FlashLite = AIModelType(
+        identifier: "gemini-2.5-flash-lite",
+        displayName: "Gemini 2.5 Flash lite",
+        description: "Latest fast model with multimodal capabilities"
+    )
+    
+    
     public static let gemini25Flash = AIModelType(
         identifier: "gemini-2.5-flash",
         displayName: "Gemini 2.5 Flash",
@@ -94,6 +103,7 @@ public struct AIModelType: Sendable, Hashable, Codable {
     
     // MARK: - All Available Models
     public static let allPredefined: [AIModelType] = [
+        .gemini25FlashLite,
         .gemini25Flash,
         .gemini2Flash,
         .gemini15Flash,
