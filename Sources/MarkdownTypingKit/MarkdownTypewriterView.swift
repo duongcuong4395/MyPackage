@@ -1,5 +1,5 @@
 import SwiftUI
-/*
+
 @available(iOS 17.0, *)
 /// Main view for displaying markdown with typewriter effect
 public struct MarkdownTypewriterView: View {
@@ -132,7 +132,7 @@ public extension MarkdownTypewriterView {
         return MarkdownTypewriterView(text: $text, configuration: config)
     }
 }
-*/
+
 
 
 // MARK: - Preview Support

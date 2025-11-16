@@ -1,6 +1,6 @@
 import SwiftUI
 //import MarkdownTypewriter
-
+/*
 @available(iOS 17.0, *)
 struct MarkdownTypewriterDemoApp: View {
     var body: some View {
@@ -461,7 +461,7 @@ struct PlaygroundView: View {
         }
     }
 }
-
+*/
  
 // MARK: - Preview
 /*
