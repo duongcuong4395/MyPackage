@@ -7,7 +7,18 @@ public struct MarkdownTypewriterView: View {
     private let configuration: MarkdownConfiguration
     
     @StateObject private var engine: CachedTypewriterEngine
-    @State private var contentHeight: CGFloat = 0
+    
+    
+    
+    // autoScroll - Ver 2
+    @State private var scrollProxy: ScrollViewProxy?
+    @State private var scrollTask: Task<Void, Never>?
+    @State private var lastScrolledLength: Int = 0
+    
+    
+    // autoScroll - Ver 3 (Scroll every time a new section appears)
+    @State private var lastSectionCount: Int = 0
+    
     
     private let parser = MarkdownParser()
     private let renderer: SectionRenderer
@@ -54,26 +65,33 @@ public struct MarkdownTypewriterView: View {
                         renderer.render(section)
                             .id(section.id)
                     }
+                    
+                    // Invisible anchor at the bottom
+                    Color.clear
+                        .frame(height: 1)
+                        .id("bottom_anchor")
                 }
                 .padding(.horizontal, configuration.theme.horizontalPadding)
-                .background(
-                    GeometryReader { geometry in
-                        Color.clear
-                            .preference(
-                                key: ContentHeightPreferenceKey.self,
-                                value: geometry.size.height
-                            )
-                    }
-                )
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .id("bottom_anchor")
             }
-            .onPreferenceChange(ContentHeightPreferenceKey.self) { newHeight in
-                contentHeight = newHeight
-                
+            .onAppear {
+               scrollProxy = proxy
+               engine.updateSource(text)
+            }
+            .onChange(of: engine.displayedText) { _, newValue in
+                // Trigger scroll when content changes
                 if configuration.enableAutoScroll && engine.isTypewriting {
-                    withAnimation(.easeOut(duration: 0.2)) {
-                        proxy.scrollTo("bottom_anchor", anchor: .bottom)
+                    let sections = engine.getCachedSections(for: newValue, parser: parser)
+                    
+                    // Scroll when section count changes or every 100 characters
+                    if sections.count != lastSectionCount || newValue.count % 100 == 0 {
+                        lastSectionCount = sections.count
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                proxy.scrollTo("bottom_anchor", anchor: .bottom)
+                            }
+                        }
                     }
                 }
             }

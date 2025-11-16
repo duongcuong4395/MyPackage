@@ -41,8 +41,21 @@ class TypewriterEngine: ObservableObject {
             currentIndex = newText.startIndex
         }
         
+        // If displayed text matches source, we're done
+        if displayedText == sourceText {
+            isTypewriting = false
+            return
+        }
+        
+        /*
         // Start typewriting if not already running
         if !isTypewriting {
+            startTypewriting()
+        }
+        */
+        
+        // Start typewriting if not already running
+        if !isTypewriting && currentIndex < sourceText.endIndex {
             startTypewriting()
         }
     }
@@ -83,21 +96,12 @@ class TypewriterEngine: ObservableObject {
         
         isTypewriting = true
         
-        /*
-        timer = Timer.scheduledTimer(
-            withTimeInterval: typingSpeed.rawValue,
-            repeats: true
-        ) { [weak self] _ in
-            self?.typeNextCharacter()
-        }
-        */
-        
         timer = Timer.scheduledTimer(
             withTimeInterval: typingSpeed.rawValue,
             repeats: true) { [weak self] _ in
             
                 Task { @MainActor in
-                self?.typeNextCharacter()  // ✅ Safe on MainActor
+                self?.typeNextCharacter()
             }
         }
     }
