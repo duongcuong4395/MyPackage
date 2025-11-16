@@ -80,6 +80,7 @@ public struct MarkdownTypewriterView: View {
             }
             .onChange(of: engine.displayedText) { _, newValue in
                 // Debounced auto-scroll
+                /*
                 if configuration.enableAutoScroll && engine.isTypewriting {
                     scrollTask?.cancel()
                     scrollTask = Task { @MainActor in
@@ -87,6 +88,23 @@ public struct MarkdownTypewriterView: View {
                         guard !Task.isCancelled else { return }
                         withAnimation(.easeOut(duration: 0.1)) {
                             proxy.scrollTo("bottom_anchor", anchor: .bottom)
+                        }
+                    }
+                }
+                */
+                if configuration.enableAutoScroll && engine.isTypewriting {
+                    let sections = engine.getCachedSections(for: newValue, parser: parser)
+                    
+                    // ✅ Only scroll when:
+                    // - Section count changes (new paragraph/header/etc)
+                    // - Every 100 characters (for long paragraphs)
+                    if sections.count != lastSectionCount || newValue.count % 10 == 0 {
+                        lastSectionCount = sections.count
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                proxy.scrollTo("bottom_anchor", anchor: .bottom)
+                            }
                         }
                     }
                 }

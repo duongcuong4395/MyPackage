@@ -47,13 +47,6 @@ class TypewriterEngine: ObservableObject {
             return
         }
         
-        /*
-        // Start typewriting if not already running
-        if !isTypewriting {
-            startTypewriting()
-        }
-        */
-        
         // Start typewriting if not already running
         if !isTypewriting && currentIndex < sourceText.endIndex {
             startTypewriting()
@@ -123,7 +116,7 @@ class TypewriterEngine: ObservableObject {
 @MainActor
 final class CachedTypewriterEngine: TypewriterEngine {
     private var parsedSectionsCache: [String: [MarkdownSection]] = [:]
-    private let cacheLimit = 50 // Maximum cache entries
+    private let cacheLimit = 50 
     
     func getCachedSections(for text: String, parser: MarkdownParser) -> [MarkdownSection] {
         if let cached = parsedSectionsCache[text] {
