@@ -79,18 +79,14 @@ public struct MarkdownTypewriterView: View {
                engine.updateSource(text)
             }
             .onChange(of: engine.displayedText) { _, newValue in
-                // Trigger scroll when content changes
+                // Debounced auto-scroll
                 if configuration.enableAutoScroll && engine.isTypewriting {
-                    let sections = engine.getCachedSections(for: newValue, parser: parser)
-                    
-                    // Scroll when section count changes or every 100 characters
-                    if sections.count != lastSectionCount || newValue.count % 100 == 0 {
-                        lastSectionCount = sections.count
-                        
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                            withAnimation(.easeOut(duration: 0.2)) {
-                                proxy.scrollTo("bottom_anchor", anchor: .bottom)
-                            }
+                    scrollTask?.cancel()
+                    scrollTask = Task { @MainActor in
+                        try? await Task.sleep(nanoseconds: 50_000_000) // 50ms debounce
+                        guard !Task.isCancelled else { return }
+                        withAnimation(.easeOut(duration: 0.1)) {
+                            proxy.scrollTo("bottom_anchor", anchor: .bottom)
                         }
                     }
                 }
