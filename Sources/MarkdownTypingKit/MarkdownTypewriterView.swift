@@ -1,10 +1,10 @@
 import SwiftUI
-
+/*
 @available(iOS 17.0, *)
 /// Main view for displaying markdown with typewriter effect
 public struct MarkdownTypewriterView: View {
-    @Binding var text: String
-    let configuration: MarkdownConfiguration
+    @Binding private var text: String
+    private let configuration: MarkdownConfiguration
     
     @StateObject private var engine: CachedTypewriterEngine
     @State private var contentHeight: CGFloat = 0
@@ -22,6 +22,19 @@ public struct MarkdownTypewriterView: View {
         self.renderer = SectionRenderer(theme: configuration.theme)
         
         let engine = CachedTypewriterEngine(typingSpeed: configuration.typingSpeed)
+        self._engine = StateObject(wrappedValue: engine)
+    }
+    
+    /// Private initializer for modifier support
+    private init(
+        text: Binding<String>,
+        configuration: MarkdownConfiguration,
+        renderer: SectionRenderer,
+        engine: CachedTypewriterEngine
+    ) {
+        self._text = text
+        self.configuration = configuration
+        self.renderer = renderer
         self._engine = StateObject(wrappedValue: engine)
     }
     
@@ -99,26 +112,28 @@ public extension MarkdownTypewriterView {
     }
     
     /// Modifier to customize typing speed
-    func typingSpeed(_ speed: TypingSpeed) -> some View {
+    func typingSpeed(_ speed: TypingSpeed) -> MarkdownTypewriterView {
         var config = configuration
         config.typingSpeed = speed
         return MarkdownTypewriterView(text: $text, configuration: config)
     }
     
     /// Modifier to customize theme
-    func markdownTheme(_ theme: MarkdownTheme) -> some View {
+    func markdownTheme(_ theme: MarkdownTheme) -> MarkdownTypewriterView {
         var config = configuration
         config.theme = theme
         return MarkdownTypewriterView(text: $text, configuration: config)
     }
     
     /// Modifier to enable/disable auto-scroll
-    func autoScroll(_ enabled: Bool) -> some View {
+    func autoScroll(_ enabled: Bool) -> MarkdownTypewriterView {
         var config = configuration
         config.enableAutoScroll = enabled
         return MarkdownTypewriterView(text: $text, configuration: config)
     }
 }
+*/
+
 
 // MARK: - Preview Support
 
