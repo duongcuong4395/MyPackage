@@ -95,10 +95,10 @@ public struct MarkdownTypewriterView: View {
                 if configuration.enableAutoScroll && engine.isTypewriting {
                     let sections = engine.getCachedSections(for: newValue, parser: parser)
                     
-                    // ✅ Only scroll when:
+                    // Only scroll when:
                     // - Section count changes (new paragraph/header/etc)
-                    // - Every 100 characters (for long paragraphs)
-                    if sections.count != lastSectionCount || newValue.count % 10 == 0 {
+                    // - Every 30 characters (for long paragraphs)
+                    if sections.count != lastSectionCount || newValue.count % 30 == 0 {
                         lastSectionCount = sections.count
                         
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
