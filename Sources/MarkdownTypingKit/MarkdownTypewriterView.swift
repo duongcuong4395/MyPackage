@@ -79,19 +79,6 @@ public struct MarkdownTypewriterView: View {
                engine.updateSource(text)
             }
             .onChange(of: engine.displayedText) { _, newValue in
-                // Debounced auto-scroll
-                /*
-                if configuration.enableAutoScroll && engine.isTypewriting {
-                    scrollTask?.cancel()
-                    scrollTask = Task { @MainActor in
-                        try? await Task.sleep(nanoseconds: 50_000_000) // 50ms debounce
-                        guard !Task.isCancelled else { return }
-                        withAnimation(.easeOut(duration: 0.1)) {
-                            proxy.scrollTo("bottom_anchor", anchor: .bottom)
-                        }
-                    }
-                }
-                */
                 if configuration.enableAutoScroll && engine.isTypewriting {
                     let sections = engine.getCachedSections(for: newValue, parser: parser)
                     
@@ -112,9 +99,12 @@ public struct MarkdownTypewriterView: View {
             .onChange(of: text) { _, newValue in
                 engine.updateSource(newValue)
             }
-            .onAppear {
-                engine.updateSource(text)
+            .onChange(of: configuration.typingSpeed) { _, newSpeed in
+                engine.setSpeed(newSpeed)
             }
+            //.onAppear {
+                //engine.updateSource(text)
+            //}
         }
     }
 }
