@@ -3,7 +3,7 @@ import SwiftUI
 @available(iOS 17.0, *)
 public struct MarkdownTypewriterDemoView: View {
     
-    init() {}
+    public init() {}
     
     public var body: some View {
         TabView {
