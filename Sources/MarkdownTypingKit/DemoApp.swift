@@ -1,22 +1,15 @@
 import SwiftUI
-//import MarkdownTypewriter
-/*
-@available(iOS 17.0, *)
-struct MarkdownTypewriterDemoApp: View {
-    var body: some View {
-        MarkdownTypewriterDemoView()
-    }
-}
 
 @available(iOS 17.0, *)
 struct MarkdownTypewriterDemoView: View {
     var body: some View {
         TabView {
-            BasicDemoView()
+            MarkdownTypewriterBasicDemoView()
                 .tabItem {
                     Label("Basic", systemImage: "text.alignleft")
                 }
             
+            /*
             StreamingDemoView()
                 .tabItem {
                     Label("Streaming", systemImage: "wave.3.right")
@@ -26,8 +19,9 @@ struct MarkdownTypewriterDemoView: View {
                 .tabItem {
                     Label("Themes", systemImage: "paintbrush")
                 }
+            */
             
-            PlaygroundView()
+            PlaygroundMarkDownView()
                 .tabItem {
                     Label("Playground", systemImage: "play.circle")
                 }
@@ -38,7 +32,7 @@ struct MarkdownTypewriterDemoView: View {
 // MARK: - Basic Demo
 
 @available(iOS 17.0, *)
-struct BasicDemoView: View {
+struct MarkdownTypewriterBasicDemoView: View {
     @State private var markdown = """
     # MarkdownTypewriter Demo
     
@@ -106,8 +100,15 @@ struct BasicDemoView: View {
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
                 
-                MarkdownTypewriterView(text: $markdown)
-                    .typingSpeed(selectedSpeed)
+                MarkdownTypewriterView(
+                    text: $markdown
+                    , configuration: MarkdownConfiguration(
+                        typingSpeed: selectedSpeed
+                        , enableAutoScroll: true
+                    )
+                )
+                    //.typingSpeed(selectedSpeed)
+                    //.autoScroll(true)
                     .padding()
             }
             .navigationTitle("Basic Demo")
@@ -260,6 +261,7 @@ struct StreamingDemoView: View {
                                 
                                 MarkdownTypewriterView(text: $streamedText)
                                     .typingSpeed(.fast)
+                                    .autoScroll(true)
                             }
                             .padding()
                             .background(Color.gray.opacity(0.05))
@@ -391,6 +393,7 @@ struct CustomThemeView: View {
                 
                 MarkdownTypewriterView(text: $markdown)
                     .markdownTheme(selectedTheme.theme)
+                    .autoScroll(true)
                     .padding()
             }
             .navigationTitle("Custom Themes")
@@ -400,9 +403,9 @@ struct CustomThemeView: View {
 
 // MARK: - Playground View
 @available(iOS 17.0, *)
-struct PlaygroundView: View {
+struct PlaygroundMarkDownView: View {
     @State private var markdown = "# Try typing markdown here!\n\nStart writing..."
-    @State private var typingSpeed: TypingSpeed = .fast
+    @State private var typingSpeed: TypingSpeed = .normal
     @State private var hasAutoScroll: Bool = true
     
     var body: some View {
@@ -424,22 +427,17 @@ struct PlaygroundView: View {
                 }
                 
                 // Settings
-                GroupBox {
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Text("Speed:")
-                            Picker("Speed", selection: $typingSpeed) {
-                                ForEach(TypingSpeed.allCases, id: \.self) { speed in
-                                    Text(speed.description).tag(speed)
-                                }
-                            }
-                            .pickerStyle(.menu)
+                VStack(alignment: .leading, spacing: 12) {
+                    Picker("Speed", selection: $typingSpeed) {
+                        ForEach(TypingSpeed.allCases, id: \.self) { speed in
+                            Text(speed.description).tag(speed)
                         }
-                        
-                        Toggle("Auto-scroll", isOn: $hasAutoScroll)
                     }
+                    .pickerStyle(.segmented)
+                    
+                    Toggle("Auto-scroll", isOn: $hasAutoScroll)
                 }
-                .padding(.horizontal)
+                .padding()
                 
                 Divider()
                 
@@ -461,15 +459,3 @@ struct PlaygroundView: View {
         }
     }
 }
-*/
- 
-// MARK: - Preview
-/*
-#if DEBUG
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
-}
-#endif
-*/

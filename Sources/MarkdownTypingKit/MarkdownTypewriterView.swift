@@ -7,23 +7,11 @@ public struct MarkdownTypewriterView: View {
     private let configuration: MarkdownConfiguration
     
     @StateObject private var engine: CachedTypewriterEngine
-    
-    
-    
-    // autoScroll - Ver 2
-    @State private var scrollProxy: ScrollViewProxy?
-    @State private var scrollTask: Task<Void, Never>?
-    @State private var lastScrolledLength: Int = 0
-    
-    
-    // autoScroll - Ver 3 (Scroll every time a new section appears)
     @State private var lastSectionCount: Int = 0
-    
     
     private let parser = MarkdownParser()
     private let renderer: SectionRenderer
     
-    /// Initialize with binding and optional configuration
     public init(
         text: Binding<String>,
         configuration: MarkdownConfiguration = MarkdownConfiguration()
@@ -36,7 +24,6 @@ public struct MarkdownTypewriterView: View {
         self._engine = StateObject(wrappedValue: engine)
     }
     
-    /// Private initializer for modifier support
     private init(
         text: Binding<String>,
         configuration: MarkdownConfiguration,
@@ -75,7 +62,6 @@ public struct MarkdownTypewriterView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             .onAppear {
-               scrollProxy = proxy
                engine.updateSource(text)
             }
             .onChange(of: engine.displayedText) { _, newValue in
@@ -102,9 +88,6 @@ public struct MarkdownTypewriterView: View {
             .onChange(of: configuration.typingSpeed) { _, newSpeed in
                 engine.setSpeed(newSpeed)
             }
-            //.onAppear {
-                //engine.updateSource(text)
-            //}
         }
     }
 }
@@ -154,45 +137,3 @@ public extension MarkdownTypewriterView {
         return MarkdownTypewriterView(text: $text, configuration: config)
     }
 }
-
-
-
-// MARK: - Preview Support
-
-/*
-#if DEBUG
-struct MarkdownTypewriterView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            // Basic preview
-            MarkdownTypewriterView(
-                staticText: """
-                # Hello World
-                
-                This is a **markdown** example with *italic* text and `code`.
-                
-                ## Features
-                - Bullet points
-                - **Bold** and *italic*
-                - Code blocks
-                
-                ```swift
-                let greeting = "Hello"
-                print(greeting)
-                ```
-                """,
-                configuration: MarkdownConfiguration(typingSpeed: .fast)
-            )
-            .previewDisplayName("Basic")
-            
-            // Large theme preview
-            MarkdownTypewriterView(
-                staticText: "# Large Theme\n\nThis uses a larger theme.",
-                configuration: MarkdownConfiguration(theme: .large)
-            )
-            .previewDisplayName("Large Theme")
-        }
-    }
-}
-#endif
-*/
