@@ -1,8 +1,11 @@
 import SwiftUI
 
 @available(iOS 17.0, *)
-struct MarkdownTypewriterDemoView: View {
-    var body: some View {
+public struct MarkdownTypewriterDemoView: View {
+    
+    init() {}
+    
+    public var body: some View {
         TabView {
             MarkdownTypewriterBasicDemoView()
                 .tabItem {
