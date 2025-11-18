@@ -69,7 +69,7 @@ public struct MarkdownTypewriterView: View {
                     // Only scroll when:
                     // - Section count changes (new paragraph/header/etc)
                     // - Every 30 characters (for long paragraphs)
-                    if sections.count != lastSectionCount || newValue.count %. 100 == 0 {
+                    if sections.count != lastSectionCount || newValue.count % 100 == 0 {
                         lastSectionCount = sections.count
                         
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
