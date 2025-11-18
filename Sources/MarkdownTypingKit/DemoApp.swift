@@ -91,6 +91,7 @@ struct MarkdownTypewriterBasicDemoView: View {
     """
     
     @State private var selectedSpeed: TypingSpeed = .fast
+    @State private var isTypingComplete: Bool = true
     
     var body: some View {
         NavigationView {
@@ -104,7 +105,7 @@ struct MarkdownTypewriterBasicDemoView: View {
                 .padding(.horizontal)
                 
                 MarkdownTypewriterView(
-                    text: $markdown
+                    text: $markdown, isTypingComplete: $isTypingComplete
                     , configuration: MarkdownConfiguration(
                         typingSpeed: selectedSpeed
                         , enableAutoScroll: true
@@ -239,7 +240,7 @@ struct StreamingDemoView: View {
     ]
     
     @State private var currentResponseIndex = 0
-    
+    @State private var isTypingComplete: Bool = true
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
@@ -262,7 +263,7 @@ struct StreamingDemoView: View {
                                     .foregroundColor(.purple)
                                     .font(.title2)
                                 
-                                MarkdownTypewriterView(text: $streamedText)
+                                MarkdownTypewriterView(text: $streamedText, isTypingComplete: $isTypingComplete)
                                     .typingSpeed(.fast)
                                     .autoScroll(true)
                             }
@@ -383,6 +384,7 @@ struct CustomThemeView: View {
         }
     }
     
+    @State private var isTypingComplete: Bool = true
     var body: some View {
         NavigationView {
             VStack {
@@ -394,7 +396,7 @@ struct CustomThemeView: View {
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
                 
-                MarkdownTypewriterView(text: $markdown)
+                MarkdownTypewriterView(text: $markdown, isTypingComplete: $isTypingComplete)
                     .markdownTheme(selectedTheme.theme)
                     .autoScroll(true)
                     .padding()
@@ -410,6 +412,7 @@ struct PlaygroundMarkDownView: View {
     @State private var markdown = "# Try typing markdown here!\n\nStart writing..."
     @State private var typingSpeed: TypingSpeed = .normal
     @State private var hasAutoScroll: Bool = true
+    @State private var isTypingComplete: Bool = true
     
     var body: some View {
         NavigationView {
@@ -451,7 +454,7 @@ struct PlaygroundMarkDownView: View {
                         .padding(.horizontal)
                     
                     
-                    MarkdownTypewriterView(text: $markdown)
+                    MarkdownTypewriterView(text: $markdown, isTypingComplete: $isTypingComplete)
                         .typingSpeed(typingSpeed)
                         .autoScroll(hasAutoScroll)
                         .padding()
