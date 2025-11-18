@@ -83,6 +83,7 @@ public struct AIModelType: Sendable, Hashable, Codable {
         description: "Latest fast model with multimodal capabilities"
     )
     
+    /*
     public static let gemini15Flash = AIModelType(
         identifier: "gemini-1.5-flash",
         displayName: "Gemini 1.5 Flash",
@@ -100,14 +101,15 @@ public struct AIModelType: Sendable, Hashable, Codable {
         displayName: "Gemini 2.0 Flash (Experimental)",
         description: "Experimental version with latest features"
     )
+    */
     
     // MARK: - All Available Models
     public static let allPredefined: [AIModelType] = [
         .gemini25FlashLite,
-        .gemini25Flash,
-        .gemini2Flash,
-        .gemini15Flash,
-        .gemini15Pro
+        .gemini25Flash
+        //.gemini2Flash,
+        //.gemini15Flash,
+        //.gemini15Pro
     ]
     
     // MARK: - Custom Model Creation

@@ -46,6 +46,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.10.2")),
         .package(url: "https://github.com/google-gemini/generative-ai-swift", .upToNextMajor(from: "0.5.6")),
+        .package(url: "https://github.com/firebase/firebase-ios-sdk", .upToNextMajor(from: "12.6.0")),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.

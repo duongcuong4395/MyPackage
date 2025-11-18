@@ -61,9 +61,7 @@ public struct MarkdownTypewriterView: View {
                 .padding(.horizontal, configuration.theme.horizontalPadding)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .onAppear {
-               engine.updateSource(text)
-            }
+            
             .onChange(of: engine.displayedText) { _, newValue in
                 if configuration.enableAutoScroll && engine.isTypewriting {
                     let sections = engine.getCachedSections(for: newValue, parser: parser)
@@ -71,7 +69,7 @@ public struct MarkdownTypewriterView: View {
                     // Only scroll when:
                     // - Section count changes (new paragraph/header/etc)
                     // - Every 30 characters (for long paragraphs)
-                    if sections.count != lastSectionCount || newValue.count % 30 == 0 {
+                    if sections.count != lastSectionCount || newValue.count %. 100 == 0 {
                         lastSectionCount = sections.count
                         
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
@@ -87,6 +85,10 @@ public struct MarkdownTypewriterView: View {
             }
             .onChange(of: configuration.typingSpeed) { _, newSpeed in
                 engine.setSpeed(newSpeed)
+            }
+            .onAppear {
+                engine.updateSource(text)
+                engine.setSpeed(configuration.typingSpeed)
             }
         }
     }
@@ -134,6 +136,21 @@ public extension MarkdownTypewriterView {
     func autoScroll(_ enabled: Bool) -> MarkdownTypewriterView {
         var config = configuration
         config.enableAutoScroll = enabled
+        return MarkdownTypewriterView(text: $text, configuration: config)
+    }
+    
+    /// Use `false` when embedding in another ScrollView (e.g., chat bubbles)
+    func scrollable(_ enabled: Bool) -> MarkdownTypewriterView {
+        var config = configuration
+        config.enableScrollView = enabled
+        return MarkdownTypewriterView(text: $text, configuration: config)
+    }
+    
+    /// Convenience modifier for embedded use (disables ScrollView and auto-scroll)
+    func embedded() -> MarkdownTypewriterView {
+        var config = configuration
+        config.enableScrollView = false
+        config.enableAutoScroll = false
         return MarkdownTypewriterView(text: $text, configuration: config)
     }
 }
