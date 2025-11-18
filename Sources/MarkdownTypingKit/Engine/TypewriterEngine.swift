@@ -13,6 +13,9 @@ class TypewriterEngine: ObservableObject {
     nonisolated(unsafe) private var timer: Timer?
     private var typingSpeed: TypingSpeed
     
+    
+    var onTypewritingComplete: (() -> Void)?
+    
     init(typingSpeed: TypingSpeed = .fast) {
         self.typingSpeed = typingSpeed
         self.currentIndex = "".startIndex
@@ -102,6 +105,8 @@ class TypewriterEngine: ObservableObject {
     private func typeNextCharacter() {
         guard currentIndex < sourceText.endIndex else {
             stop()
+            
+            onTypewritingComplete?()
             return
         }
         

@@ -4,19 +4,24 @@ import SwiftUI
 /// Main view for displaying markdown with typewriter effect
 public struct MarkdownTypewriterView: View {
     @Binding private var text: String
+    @Binding private var isTypingComplete: Bool
     private let configuration: MarkdownConfiguration
     
     @StateObject private var engine: CachedTypewriterEngine
     @State private var lastSectionCount: Int = 0
+    
+    
     
     private let parser = MarkdownParser()
     private let renderer: SectionRenderer
     
     public init(
         text: Binding<String>,
+        isTypingComplete: Binding<Bool>,
         configuration: MarkdownConfiguration = MarkdownConfiguration()
     ) {
         self._text = text
+        self._isTypingComplete = isTypingComplete
         self.configuration = configuration
         self.renderer = SectionRenderer(theme: configuration.theme)
         
@@ -26,11 +31,13 @@ public struct MarkdownTypewriterView: View {
     
     private init(
         text: Binding<String>,
+        isTypingComplete: Binding<Bool>,
         configuration: MarkdownConfiguration,
         renderer: SectionRenderer,
         engine: CachedTypewriterEngine
     ) {
         self._text = text
+        self._isTypingComplete = isTypingComplete
         self.configuration = configuration
         self.renderer = renderer
         self._engine = StateObject(wrappedValue: engine)
@@ -81,6 +88,7 @@ public struct MarkdownTypewriterView: View {
                 }
             }
             .onChange(of: text) { _, newValue in
+                isTypingComplete = false
                 engine.updateSource(newValue)
             }
             .onChange(of: configuration.typingSpeed) { _, newSpeed in
@@ -88,7 +96,13 @@ public struct MarkdownTypewriterView: View {
             }
             .onAppear {
                 engine.updateSource(text)
-                engine.setSpeed(configuration.typingSpeed)
+                
+                isTypingComplete = false
+                
+                //engine.setSpeed(configuration.typingSpeed)
+                engine.onTypewritingComplete = {
+                    isTypingComplete = true
+                }
             }
         }
     }
@@ -110,10 +124,12 @@ public extension MarkdownTypewriterView {
     /// Initialize with static text (non-binding)
     init(
         staticText: String,
+        isTypingComplete: Binding<Bool>,
         configuration: MarkdownConfiguration = MarkdownConfiguration()
     ) {
         self.init(
             text: .constant(staticText),
+            isTypingComplete: isTypingComplete,
             configuration: configuration
         )
     }
@@ -122,23 +138,24 @@ public extension MarkdownTypewriterView {
     func typingSpeed(_ speed: TypingSpeed) -> MarkdownTypewriterView {
         var config = configuration
         config.typingSpeed = speed
-        return MarkdownTypewriterView(text: $text, configuration: config)
+        return MarkdownTypewriterView(text: $text, isTypingComplete: $isTypingComplete, configuration: config)
     }
     
     /// Modifier to customize theme
     func markdownTheme(_ theme: MarkdownTheme) -> MarkdownTypewriterView {
         var config = configuration
         config.theme = theme
-        return MarkdownTypewriterView(text: $text, configuration: config)
+        return MarkdownTypewriterView(text: $text, isTypingComplete: $isTypingComplete, configuration: config)
     }
     
     /// Modifier to enable/disable auto-scroll
     func autoScroll(_ enabled: Bool) -> MarkdownTypewriterView {
         var config = configuration
         config.enableAutoScroll = enabled
-        return MarkdownTypewriterView(text: $text, configuration: config)
+        return MarkdownTypewriterView(text: $text, isTypingComplete: $isTypingComplete, configuration: config)
     }
     
+    /*
     /// Use `false` when embedding in another ScrollView (e.g., chat bubbles)
     func scrollable(_ enabled: Bool) -> MarkdownTypewriterView {
         var config = configuration
@@ -153,4 +170,5 @@ public extension MarkdownTypewriterView {
         config.enableAutoScroll = false
         return MarkdownTypewriterView(text: $text, configuration: config)
     }
+    */
 }

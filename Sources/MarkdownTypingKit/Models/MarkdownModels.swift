@@ -35,20 +35,20 @@ public struct MarkdownConfiguration: Sendable {
     public var typingSpeed: TypingSpeed
     public var showIndicators: Bool
     public var enableAutoScroll: Bool
-    public var enableScrollView: Bool
+    //public var enableScrollView: Bool
     public var theme: MarkdownTheme
     
     public init(
         typingSpeed: TypingSpeed = .fast,
         showIndicators: Bool = false,
         enableAutoScroll: Bool = true,
-        enableScrollView: Bool = true,
+        //enableScrollView: Bool = true,
         theme: MarkdownTheme = .default
     ) {
         self.typingSpeed = typingSpeed
         self.showIndicators = showIndicators
         self.enableAutoScroll = enableAutoScroll
-        self.enableScrollView = enableScrollView
+        //self.enableScrollView = enableScrollView
         self.theme = theme
     }
 }
