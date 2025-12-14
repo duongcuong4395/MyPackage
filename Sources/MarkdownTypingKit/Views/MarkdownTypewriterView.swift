@@ -10,8 +10,6 @@ public struct MarkdownTypewriterView: View {
     @StateObject private var engine: CachedTypewriterEngine
     @State private var lastSectionCount: Int = 0
     
-    
-    
     private let parser = MarkdownParser()
     private let renderer: SectionRenderer
     
