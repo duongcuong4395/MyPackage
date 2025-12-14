@@ -429,8 +429,8 @@ public struct GlassPlaygroundView: View {
         var code = ".modifier(GlassEffect(\n"
         code += "    cornerRadius: \(Int(cornerRadius)),\n"
         code += "    intensity: \(String(format: "%.2f", intensity)),\n"
-        //code += "    tintColor: .\(colorName(tintColor)),\n"
-        code += "    tintColor: .\(tintColor),\n"
+        code += "    tintColor: .\(colorName(tintColor)),\n"
+        //code += "    tintColor: .\(tintColor),\n"
         code += "    isInteractive: \(isInteractive),\n"
         code += "    hasShimmer: \(hasShimmer),\n"
         code += "    hasGlow: \(hasGlow),\n"
@@ -480,6 +480,9 @@ public struct GlassPlaygroundView: View {
         if color == .orange { return "orange" }
         if color == .pink { return "pink" }
         if color == .yellow { return "yellow" }
-        return "blue"
+        
+        
+        
+        return color.description// "blue"
     }
 }
