@@ -429,7 +429,7 @@ public struct GlassPlaygroundView: View {
         var code = ".modifier(GlassEffect(\n"
         code += "    cornerRadius: \(Int(cornerRadius)),\n"
         code += "    intensity: \(String(format: "%.2f", intensity)),\n"
-        code += "    tintColor: .\(colorName(tintColor)),\n"
+        code += "    tintColor: .\(colorCode(tintColor)),\n"
         //code += "    tintColor: .\(tintColor),\n"
         code += "    isInteractive: \(isInteractive),\n"
         code += "    hasShimmer: \(hasShimmer),\n"
@@ -455,7 +455,7 @@ public struct GlassPlaygroundView: View {
         }
         
         code += "    borderType: .\(borderType.rawValue.lowercased()),\n"
-        code += "    borderColor: .\(colorName(borderColor)),\n"
+        code += "    borderColor: .\(colorCode(borderColor)),\n"
         code += "    borderOpacity: \(String(format: "%.2f", borderOpacity)),\n"
         code += "    borderWidth: \(String(format: "%.1f", borderWidth)),\n"
         code += "    blurRadius: \(Int(blurRadius)),\n"
@@ -484,5 +484,43 @@ public struct GlassPlaygroundView: View {
         
         
         return color.description// "blue"
+    }
+    
+    private func colorCode(_ color: Color) -> String {
+        // Ưu tiên semantic color nếu match
+        if color == .clear { return ".clear" }
+        if color == .white { return ".white" }
+        if color == .black { return ".black" }
+
+        guard let rgba = color.rgbaComponents() else {
+            return ".clear // Unsupported color"
+        }
+
+        return String(
+            format: "Color(red: %.6f, green: %.6f, blue: %.6f, opacity: %.6f)",
+            rgba.r, rgba.g, rgba.b, rgba.a
+        )
+    }
+
+}
+
+
+import SwiftUI
+import UIKit
+
+
+@available(iOS 14.0, *)
+extension Color {
+    func rgbaComponents() -> (r: CGFloat, g: CGFloat, b: CGFloat, a: CGFloat)? {
+        let uiColor = UIColor(self)
+        var r: CGFloat = 0
+        var g: CGFloat = 0
+        var b: CGFloat = 0
+        var a: CGFloat = 0
+
+        guard uiColor.getRed(&r, green: &g, blue: &b, alpha: &a) else {
+            return nil
+        }
+        return (r, g, b, a)
     }
 }
