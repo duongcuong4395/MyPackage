@@ -7,6 +7,66 @@
 
 import SwiftUI
 
+@available(iOS 15.0, *)
+public struct GlassParameters {
+    var cornerRadius: Double = 16
+    var intensity: Double = 2.3
+    var tintColor: Color = .blue
+    var isInteractive: Bool = true
+    var hasShimmer: Bool = true
+    var hasGlow: Bool = true
+}
+
+@available(iOS 15.0, *)
+public struct GlassGradientSettings {
+    var gradientType: GradientType = .linear
+    var gradientStartX: Double = 0.0
+    var gradientStartY: Double = 0.0
+    var gradientEndX: Double = 1.0
+    var gradientEndY: Double = 1.0
+    var gradientCenterX: Double = 0.5
+    var gradientCenterY: Double = 0.5
+    var gradientStartRadius: Double = 10
+    var gradientEndRadius: Double = 150
+    var gradientStartAngle: Double = 0
+    var gradientEndAngle: Double = 360
+}
+
+@available(iOS 15.0, *)
+public struct GlassBorderSettings {
+    var borderType: BorderType = .gradient
+    var borderColor: Color = .white
+    var borderOpacity: Double = 0.5
+    var borderWidth: Double = 1.0
+}
+
+@available(iOS 15.0, *)
+public struct GlassAnimationSettings {
+    var enableAnimations: Bool = true
+    var shimmerSpeed: Double = 2.0
+    var shimmerDelay: Double = 0.0
+    var glowSpeed: Double = 1.5
+    var glowDelay: Double = 0.0
+    var hoverSpeed: Double = 0.2
+}
+
+@available(iOS 15.0, *)
+public struct GlassSettingModel {
+    // Glass parameters
+    var glassParameters: GlassParameters
+    
+    // Gradient settings
+    var glassGradientSettings: GlassGradientSettings
+    
+    // Border settings
+    var glassBorderSettings: GlassBorderSettings
+    
+    // Animation
+    var glassAnimationSettings: GlassAnimationSettings
+    
+    var blurRadius: Double = 0
+}
+
 // MARK: - Simplified & Flexible UI Glass Material
 @available(iOS 15.0, *)
 public struct GlassEffect: ViewModifier {

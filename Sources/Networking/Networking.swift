@@ -49,6 +49,7 @@ extension HttpRouter {
             let result = try decoder.decode(ResponseType.self, from: data)
             return .Successs(result)
         } catch {
+            print("handleResponse.error", error.localizedDescription)
             return .Failure(APIError.DecodingError)
         }
     }
@@ -98,12 +99,18 @@ public protocol APIExecution {}
 @available(iOS 13.0.0, *)
 public extension APIExecution {
     func sendRequest<T: Decodable, R: HttpRouter>(for endpoint: R) async throws -> T where R.ResponseType == T {
-        let request = APIRequest(router: endpoint)
-        let result = try await request.callAPI()
-        switch result {
-        case .Successs(let data):
-            return data
-        case .Failure(let error):
+        do {
+            let request = APIRequest(router: endpoint)
+            let result = try await request.callAPI()
+            switch result {
+            case .Successs(let data):
+                return data
+            case .Failure(let error):
+                print("sendRequest.error1", error.localizedDescription)
+                throw error
+            }
+        } catch {
+            print("sendRequest.error2", error.localizedDescription)
             throw error
         }
     }
