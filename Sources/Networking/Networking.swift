@@ -49,7 +49,7 @@ extension HttpRouter {
             let result = try decoder.decode(ResponseType.self, from: data)
             return .Successs(result)
         } catch {
-            print("handleResponse.error", error.localizedDescription)
+            print("handleResponse.error", data, error.localizedDescription)
             return .Failure(APIError.DecodingError)
         }
     }
@@ -68,6 +68,7 @@ public class APIRequest<Router: HttpRouter> {
                 throw URLError(.badURL)
             }
 
+        print("callAPI.url:", url)
         var request: URLRequest
         
         if router.method == .get {
