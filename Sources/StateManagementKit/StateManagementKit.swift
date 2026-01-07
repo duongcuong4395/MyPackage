@@ -621,7 +621,7 @@ import Combine
 
 @available(iOS 13.0, *)
 @MainActor
-public final class StateStore<Model: Identifiable & Equatable & Sendable>: ObservableObject where Model.ID: Hashable & Sendable {
+open class StateStore<Model: Identifiable & Equatable & Sendable>: ObservableObject where Model.ID: Hashable & Sendable {
     
     @Published public private(set) var state: AsyncState<[Model]> = .idle
     @Published public private(set) var stateSelected: AsyncState<Model> = .idle
