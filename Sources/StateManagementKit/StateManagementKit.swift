@@ -5,106 +5,234 @@
 //  Created by Macbook on 2/1/26.
 //
 
-import SwiftUI
-import Foundation
-import Combine
+//
+//  AsyncState.swift
+//  StateManagementKit
+//
+//  Generic async state with optimistic updates support
+//
 
-// MARK: ====================================================
-// MARK: - 1. Core Types & Protocols
-// MARK: ====================================================
+import Foundation
 
 /// Generic async state with optimistic updates support
 @frozen
-public enum AsyncState<T: Sendable>: Sendable {
+public enum AsyncState<T> {
     case idle
     case loading(previous: T? = nil)
     case success(T)
     case failure(StateError, previous: T? = nil)
     
+    /// Returns the current data, considering previous data during loading/error states
     public var data: T? {
         switch self {
-        case .idle: return nil
-        case .loading(let previous): return previous
-        case .success(let data): return data
-        case .failure(_, let previous): return previous
+        case .idle:
+            return nil
+        case .loading(let previous):
+            return previous
+        case .success(let data):
+            return data
+        case .failure(_, let previous):
+            return previous
         }
     }
     
+    /// Indicates if the state is currently loading
     public var isLoading: Bool {
         if case .loading = self { return true }
         return false
     }
     
+    /// Indicates if the state is in success
     public var isSuccess: Bool {
         if case .success = self { return true }
         return false
     }
     
+    /// Returns the error if state is failure
     public var error: StateError? {
         if case .failure(let error, _) = self { return error }
         return nil
     }
+    
+    /// Maps the success value to a new type
+    public func map<U>(_ transform: (T) -> U) -> AsyncState<U> {
+        switch self {
+        case .idle:
+            return .idle
+        case .loading(let previous):
+            return .loading(previous: previous.map(transform))
+        case .success(let data):
+            return .success(transform(data))
+        case .failure(let error, let previous):
+            return .failure(error, previous: previous.map(transform))
+        }
+    }
 }
 
-/// Type-safe state errors
+// MARK: - Equatable Conformance
+extension AsyncState: Equatable where T: Equatable {
+    public static func == (lhs: AsyncState<T>, rhs: AsyncState<T>) -> Bool {
+        switch (lhs, rhs) {
+        case (.idle, .idle):
+            return true
+        case (.loading(let lhsPrev), .loading(let rhsPrev)):
+            return lhsPrev == rhsPrev
+        case (.success(let lhsData), .success(let rhsData)):
+            return lhsData == rhsData
+        case (.failure(let lhsError, let lhsPrev), .failure(let rhsError, let rhsPrev)):
+            return lhsError == rhsError && lhsPrev == rhsPrev
+        default:
+            return false
+        }
+    }
+}
+
+// MARK: - Sendable Conformance
+extension AsyncState: Sendable where T: Sendable {}
+
+//
+//  StateError.swift
+//  StateManagementKit
+//
+//  Type-safe state errors
+//
+
+import Foundation
+
+/// Type-safe state errors with common error cases
 public enum StateError: Error, Equatable, Sendable {
     case network(String)
     case decode(String)
     case notFound
     case unauthorized
     case cancelled
+    case timeout
+    case invalidInput(String)
     case unknown(String)
     
     public var localizedDescription: String {
         switch self {
-        case .network(let msg): return "Network error: \(msg)"
-        case .decode(let msg): return "Decode error: \(msg)"
-        case .notFound: return "Resource not found"
-        case .unauthorized: return "Unauthorized access"
-        case .cancelled: return "Operation cancelled"
-        case .unknown(let msg): return msg
+        case .network(let msg):
+            return "Network error: \(msg)"
+        case .decode(let msg):
+            return "Decode error: \(msg)"
+        case .notFound:
+            return "Resource not found"
+        case .unauthorized:
+            return "Unauthorized access"
+        case .cancelled:
+            return "Operation cancelled"
+        case .timeout:
+            return "Request timeout"
+        case .invalidInput(let msg):
+            return "Invalid input: \(msg)"
+        case .unknown(let msg):
+            return msg
+        }
+    }
+    
+    /// Check if error is recoverable
+    public var isRecoverable: Bool {
+        switch self {
+        case .network, .timeout, .unknown:
+            return true
+        case .cancelled, .unauthorized, .notFound, .decode, .invalidInput:
+            return false
         }
     }
 }
 
+//
+//  StateConfiguration.swift
+//  StateManagementKit
+//
+//  Configuration for state management behavior
+//
+
+import Foundation
+
 /// Configuration for state management
 public struct StateConfiguration: Sendable {
+    /// Debounce interval for state updates (in seconds)
     public var debounceInterval: TimeInterval
+    
+    /// Maximum number of undo steps to keep in memory
     public var maxUndoSteps: Int
+    
+    /// Enable debug logging
     public var enableLogging: Bool
+    
+    /// Default page size for pagination
     public var pageSize: Int
+    
+    /// Timeout for async operations (in seconds)
+    public var operationTimeout: TimeInterval
     
     public init(
         debounceInterval: TimeInterval = 0.05,
         maxUndoSteps: Int = 50,
         enableLogging: Bool = false,
-        pageSize: Int = 20
+        pageSize: Int = 20,
+        operationTimeout: TimeInterval = 30
     ) {
         self.debounceInterval = debounceInterval
         self.maxUndoSteps = maxUndoSteps
         self.enableLogging = enableLogging
         self.pageSize = pageSize
+        self.operationTimeout = operationTimeout
     }
     
+    /// Default configuration
     public static let `default` = StateConfiguration()
+    
+    /// Configuration optimized for testing
+    public static let testing = StateConfiguration(
+        debounceInterval: 0,
+        maxUndoSteps: 10,
+        enableLogging: true,
+        pageSize: 10,
+        operationTimeout: 5
+    )
+    
+    /// Configuration for production use
+    public static let production = StateConfiguration(
+        debounceInterval: 0.1,
+        maxUndoSteps: 100,
+        enableLogging: false,
+        pageSize: 50,
+        operationTimeout: 60
+    )
 }
 
-// MARK: ====================================================
-// MARK: - 2. Type-Safe Mutation System
-// MARK: ====================================================
+//
+//  TypeSafeMutation.swift
+//  StateManagementKit
+//
+//  Type-safe mutation system that prevents runtime crashes
+//
+
+import Foundation
 
 /// Type-safe mutation that prevents runtime crashes
-public struct TypeSafeMutation<Model: Equatable & Sendable>: Sendable {
-    private let transform: @Sendable (Model) -> Model
+public struct TypeSafeMutation<Model: Equatable> {
+    private let transform: (Model) -> Model
     
-    public init(_ transform: @escaping @Sendable (Model) -> Model) {
+    /// Creates a new type-safe mutation
+    /// - Parameter transform: The transformation function to apply to the model
+    public init(_ transform: @escaping (Model) -> Model) {
         self.transform = transform
     }
     
+    /// Applies the mutation to a model
+    /// - Parameter model: The model to mutate
+    /// - Returns: The mutated model
     public func apply(to model: Model) -> Model {
         transform(model)
     }
     
+    /// Merges this mutation with another mutation
+    /// - Parameter other: The mutation to merge with
+    /// - Returns: A new mutation that applies both transformations
     public func merge(with other: TypeSafeMutation<Model>) -> TypeSafeMutation<Model> {
         TypeSafeMutation { model in
             other.apply(to: self.apply(to: model))
@@ -112,829 +240,114 @@ public struct TypeSafeMutation<Model: Equatable & Sendable>: Sendable {
     }
 }
 
-// Type-safe update builder
-public struct UpdateBuilder<Model: Sendable>: Sendable {
-    private var mutations: [ @Sendable (inout Model) -> Void] = []
+// MARK: - Convenience Initializers
+
+extension TypeSafeMutation {
+    /// Creates a mutation that updates a single keypath
+    public static func set<Value>(
+        _ keyPath: WritableKeyPath<Model, Value>,
+        to value: Value
+    ) -> TypeSafeMutation<Model> {
+        TypeSafeMutation { model in
+            var mutableModel = model
+            mutableModel[keyPath: keyPath] = value
+            return mutableModel
+        }
+    }
+    
+    /// Creates a mutation from an inout closure
+    public static func modify(
+        _ transform: @escaping (inout Model) -> Void
+    ) -> TypeSafeMutation<Model> {
+        TypeSafeMutation { model in
+            var mutableModel = model
+            transform(&mutableModel)
+            return mutableModel
+        }
+    }
+}
+
+
+//
+//  UpdateBuilder.swift
+//  StateManagementKit
+//
+//  Type-safe update builder for batch mutations
+//
+
+import Foundation
+
+/// Type-safe update builder for batch mutations
+public struct UpdateBuilder<Model> {
+    private var mutations: [(inout Model) -> Void] = []
     
     public init() {}
     
-    public mutating func set<Value: Sendable>(
-        _ keyPath: WritableKeyPath<Model, Value> & Sendable,
-       to value: Value
+    /// Sets a value at a specific keypath
+    /// - Parameters:
+    ///   - keyPath: The keypath to update
+    ///   - value: The new value
+    public mutating func set<Value>(
+        _ keyPath: WritableKeyPath<Model, Value>,
+        to value: Value
     ) {
         mutations.append { model in
             model[keyPath: keyPath] = value
         }
     }
     
-    public mutating func apply(_ transform: @escaping @Sendable (inout Model) -> Void) {
+    /// Applies a custom transformation
+    /// - Parameter transform: The transformation to apply
+    public mutating func apply(_ transform: @escaping (inout Model) -> Void) {
         mutations.append(transform)
     }
     
-    public func build() -> @Sendable (inout Model) -> Void {
+    /// Conditionally applies a mutation
+    /// - Parameters:
+    ///   - condition: The condition to check
+    ///   - mutation: The mutation to apply if condition is true
+    public mutating func `if`(_ condition: Bool, _ mutation: (inout UpdateBuilder<Model>) -> Void) {
+        if condition {
+            mutation(&self)
+        }
+    }
+    
+    /// Builds the final mutation function
+    /// - Returns: A function that applies all accumulated mutations
+    public func build() -> (inout Model) -> Void {
         return { model in
             for mutation in self.mutations {
                 mutation(&model)
             }
         }
     }
-}
-
-// MARK: ====================================================
-// MARK: - 3. Memory-Efficient Undo/Redo
-// MARK: ====================================================
-
-/// Circular buffer for undo/redo to prevent memory leaks
-private struct CircularBuffer<T> {
-    private var buffer: [T]
-    private let capacity: Int
-    private var startIndex = 0
-    private var count = 0
     
-    init(capacity: Int) {
-        self.capacity = capacity
-        self.buffer = []
-        self.buffer.reserveCapacity(capacity)
-    }
-    
-    mutating func append(_ element: T) {
-        if count < capacity {
-            buffer.append(element)
-            count += 1
-        } else {
-            buffer[startIndex] = element
-            startIndex = (startIndex + 1) % capacity
-        }
-    }
-    
-    mutating func removeLast() -> T? {
-        guard count > 0 else { return nil }
-        count -= 1
-        let index = (startIndex + count) % capacity
-        return buffer[index]
-    }
-    
-    mutating func removeAll() {
-        buffer.removeAll(keepingCapacity: true)
-        count = 0
-        startIndex = 0
-    }
-    
-    var isEmpty: Bool { count == 0 }
-    var isFull: Bool { count == capacity }
-}
-
-// MARK: ====================================================
-// MARK: - 4. Cancellable Task Manager
-// MARK: ====================================================
-@available(iOS 16.0, *)
-/// Manages async tasks with automatic cancellation
-@MainActor
-public final class TaskManager {
-    private var tasks: [String: Task<Void, Never>] = [:]
-    
-    public init() {}
-    
-    public func run(id: String, priority: TaskPriority = .userInitiated, operation: @escaping @Sendable () async throws -> Void) {
-        cancel(id: id)
-        
-        tasks[id] = Task(priority: priority) { @MainActor [weak self] in
-            defer {
-                /*
-                Task { @MainActor in
-                    self?.tasks.removeValue(forKey: id)
-                }
-                */
-                self?.tasks.removeValue(forKey: id)
-            }
-            
-            do {
-                try await operation()
-            } catch is CancellationError {
-                // Silently handle cancellation
-            } catch {
-                // Log error if needed
-                print("⚠️ TaskManager error: \(error)")
-            }
-        }
-    }
-    
-    public func cancel(id: String) {
-        tasks[id]?.cancel()
-        tasks.removeValue(forKey: id)
-    }
-    
-    public func cancelAll() {
-        tasks.values.forEach { $0.cancel() }
-        tasks.removeAll()
-    }
-    
-    public func cancelA() {
-        let tasksToCancel = tasks.values
-        tasksToCancel.forEach { $0.cancel() }
-    }
-    
-    deinit {
-        //cancelAll()
-        let tasksToCancel = tasks.values
-        tasksToCancel.forEach { $0.cancel() }
-    }
-    
-}
-
-// MARK: ====================================================
-// MARK: - 5. Retry Logic with Exponential Backoff
-// MARK: ====================================================
-@available(iOS 16.0, *)
-public struct RetryPolicy: Sendable {
-    public var maxAttempts: Int
-    public var initialDelay: TimeInterval
-    public var maxDelay: TimeInterval
-    public var multiplier: Double
-    
-    public init(
-        maxAttempts: Int = 3,
-        initialDelay: TimeInterval = 1.0,
-        maxDelay: TimeInterval = 60.0,
-        multiplier: Double = 2.0
-    ) {
-        self.maxAttempts = maxAttempts
-        self.initialDelay = initialDelay
-        self.maxDelay = maxDelay
-        self.multiplier = multiplier
-    }
-    
-    public static let `default` = RetryPolicy()
-}
-
-@available(iOS 16.0, *)
-extension Task where Failure == Error {
-    static func retrying(
-        policy: RetryPolicy = .default,
-        operation: @escaping () async throws -> Success
-    ) async throws -> Success {
-        var lastError: Error?
-        
-        for attempt in 0..<policy.maxAttempts {
-            do {
-                return try await operation()
-            } catch is CancellationError {
-                //throw CancellationError()
-                throw _Concurrency.CancellationError()
-            } catch {
-                lastError = error
-                
-                if attempt < policy.maxAttempts - 1 {
-                    let delay = min(
-                        policy.initialDelay * pow(policy.multiplier, Double(attempt)),
-                        policy.maxDelay
-                    )
-                    try await Task<Never, Never>.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
-                }
-            }
-        }
-        
-        throw lastError ?? StateError.unknown("Retry failed")
-    }
-}
-
-// MARK: ====================================================
-// MARK: - 6. Protocol-Based Architecture (Dependency Injection)
-// MARK: ====================================================
-@available(iOS 16.0, *)
-/// Protocol for data sources (mockable for testing)
-public protocol DataSourceProtocol<Model>: Sendable {
-    associatedtype Model: Sendable
-    func fetch() async throws -> [Model]
-    func fetch(page: Int, pageSize: Int) async throws -> [Model]
-}
-
-/// Protocol for persistence layer
-public protocol PersistenceProtocol<Model>: Sendable {
-    associatedtype Model: Codable & Sendable
-    func save(_ models: [Model], key: String) throws
-    func load(key: String) throws -> [Model]?
-}
-
-/// Default UserDefaults persistence
-public struct UserDefaultsPersistence<Model: Codable & Sendable>: PersistenceProtocol {
-    public init() {}
-    
-    public func save(_ models: [Model], key: String) throws {
-        let data = try JSONEncoder().encode(models)
-        UserDefaults.standard.set(data, forKey: key)
-    }
-    
-    public func load(key: String) throws -> [Model]? {
-        guard let data = UserDefaults.standard.data(forKey: key) else { return nil }
-        return try JSONDecoder().decode([Model].self, from: data)
-    }
-}
-
-// MARK: ====================================================
-// MARK: - 7. Enhanced SingleStateStore
-// MARK: ====================================================
-@available(iOS 16.0, *)
-@MainActor
-open class SingleStateStore<Model: Equatable & Sendable>: ObservableObject {
-    
-    @Published public private(set) var state: AsyncState<Model> = .idle
-    @Published public private(set) var mutation: TypeSafeMutation<Model>?
-    
-    private var undoBuffer: CircularBuffer<TypeSafeMutation<Model>?>
-    private var redoBuffer: CircularBuffer<TypeSafeMutation<Model>?>
-    private var isUndoRedoEnabled = false
-    
-    private let taskManager = TaskManager()
-    private let config: StateConfiguration
-    
-    public init(config: StateConfiguration = .default) {
-        self.config = config
-        self.undoBuffer = CircularBuffer(capacity: config.maxUndoSteps)
-        self.redoBuffer = CircularBuffer(capacity: config.maxUndoSteps)
-    }
-    
-    // MARK: - Public API
-    
-    public func setState(_ newState: AsyncState<Model>) {
-        state = newState
-        mutation = nil
-    }
-    
-    public var currentModel: Model? {
-        guard let baseModel = state.data else { return nil }
-        return mutation?.apply(to: baseModel) ?? baseModel
-    }
-    
-    public func update<Value: Sendable>(
-        keyPath: WritableKeyPath<Model, Value> & Sendable,
-        value: Value
-    ) {
-        guard let baseModel = state.data else { return }
-        
-        let newMutation = TypeSafeMutation<Model> { model in
-            var mutableModel = model
-            mutableModel[keyPath: keyPath] = value
-            return mutableModel
-        }
-        
-        applyMutation(newMutation)
-    }
-    
-    public func batchUpdate(_ builder: (inout UpdateBuilder<Model>) -> Void) {
-        guard let baseModel = state.data else { return }
-        
-        var updateBuilder = UpdateBuilder<Model>()
-        builder(&updateBuilder)
-        let transform = updateBuilder.build()
-        
-        let newMutation = TypeSafeMutation<Model> { model in
+    /// Builds a TypeSafeMutation
+    /// - Returns: A TypeSafeMutation that applies all accumulated mutations
+    public func buildMutation() -> TypeSafeMutation<Model> where Model: Equatable {
+        let transform = build()
+        return TypeSafeMutation { model in
             var mutableModel = model
             transform(&mutableModel)
             return mutableModel
         }
-        
-        applyMutation(newMutation)
-    }
-    
-    private func applyMutation(_ newMutation: TypeSafeMutation<Model>) {
-        if isUndoRedoEnabled {
-            undoBuffer.append(mutation)
-            redoBuffer.removeAll()
-        }
-        
-        if let existingMutation = mutation {
-            mutation = existingMutation.merge(with: newMutation)
-        } else {
-            mutation = newMutation
-        }
-    }
-    
-    public func commitMutation() {
-        guard let mutatedModel = currentModel else { return }
-        state = .success(mutatedModel)
-        mutation = nil
-        
-        if isUndoRedoEnabled {
-            undoBuffer.removeAll()
-            redoBuffer.removeAll()
-        }
-    }
-    
-    public func discardMutation() {
-        mutation = nil
-    }
-    
-    public var hasMutation: Bool { mutation != nil }
-    
-    // MARK: - Undo/Redo
-    
-    public func enableUndoRedo() {
-        isUndoRedoEnabled = true
-    }
-    
-    public func disableUndoRedo() {
-        isUndoRedoEnabled = false
-        undoBuffer.removeAll()
-        redoBuffer.removeAll()
-    }
-    
-    public func undo() {
-        guard isUndoRedoEnabled, !undoBuffer.isEmpty else { return }
-        redoBuffer.append(mutation)
-        mutation = undoBuffer.removeLast() ?? nil
-    }
-    
-    public func redo() {
-        guard isUndoRedoEnabled, !redoBuffer.isEmpty else { return }
-        undoBuffer.append(mutation)
-        mutation = redoBuffer.removeLast() ?? nil
-    }
-    
-    public var canUndo: Bool { isUndoRedoEnabled && !undoBuffer.isEmpty }
-    public var canRedo: Bool { isUndoRedoEnabled && !redoBuffer.isEmpty }
-    
-    // MARK: - Async Operations with Cancellation
-    
-    public func load(
-        id: String = "load",
-        retryPolicy: RetryPolicy = .default,
-        operation: @escaping @Sendable () async throws -> Model
-    ) async {
-        taskManager.cancel(id: id)
-        
-        state = .loading(previous: state.data)
-        
-        taskManager.run(id: id) { [weak self] in
-            do {
-                let model = try await Task.retrying(policy: retryPolicy, operation: operation)
-                await MainActor.run {
-                    self?.state = .success(model)
-                }
-            } catch is CancellationError {
-                await MainActor.run {
-                    self?.state = .failure(.cancelled, previous: self?.state.data)
-                }
-            } catch {
-                await MainActor.run {
-                    self?.state = .failure(.unknown(error.localizedDescription), previous: self?.state.data)
-                }
-            }
-        }
-    }
-    
-    public func cancelLoad(id: String = "load") {
-        taskManager.cancel(id: id)
-    }
-    
-    deinit {
-        let manager = taskManager
-        Task { @MainActor in
-            manager.cancelAll()
-        }
     }
 }
 
-// MARK: ====================================================
-// MARK: - 8. Enhanced StateStore with Pagination
-// MARK: ====================================================
-@available(iOS 16.0, *)
-@MainActor
-public class StateStore<Model: Identifiable & Equatable & Sendable>: ObservableObject where Model.ID: Sendable {
-    
-    @Published public private(set) var state: AsyncState<[Model]> = .idle
-    @Published public private(set) var stateSelected: AsyncState<Model> = .idle
-    
-    @Published public private(set) var mutations: [Model.ID: TypeSafeMutation<Model>] = [:]
-    @Published public private(set) var currentPage = 0
-    @Published public private(set) var hasMorePages = true
-    
-    @Published private var mutationTrigger = UUID()
-    
-    private var undoBuffer: CircularBuffer<[Model.ID: TypeSafeMutation<Model>]>
-    private var redoBuffer: CircularBuffer<[Model.ID: TypeSafeMutation<Model>]>
-    private var isUndoRedoEnabled = false
-    
-    private let taskManager = TaskManager()
-    private let config: StateConfiguration
-    private var cancellables = Set<AnyCancellable>()
-    
-    // Lazy computed models (no unnecessary copies)
-    private var modelsCache: [Model]?
-    private var cacheInvalidated = true
-    
-    // Track current loading task for cancellation
-    private var currentLoadTask: Task<Void, Never>?
-    
-    public init(config: StateConfiguration = .default) {
-        self.config = config
-        self.undoBuffer = CircularBuffer(capacity: config.maxUndoSteps)
-        self.redoBuffer = CircularBuffer(capacity: config.maxUndoSteps)
-        
-        // Invalidate cache when mutations change
-        $mutations.sink { [weak self] _ in
-            self?.cacheInvalidated = true
-        }.store(in: &cancellables)
-    }
-    
-    // MARK: - Public API
-    
-    public func setState(_ newState: AsyncState<[Model]>) {
-        state = newState
-        mutations.removeAll()
-        cacheInvalidated = true
-        currentPage = 0
-        hasMorePages = true
-        if case .idle = newState {
-            stateSelected = .idle
-        }
-    }
-    
-    public func setStateSelected(_ newState: AsyncState<Model>) {
-        stateSelected = newState
-    }
-    
-    public func model(withId id: Model.ID) -> Model? {
-        guard let baseModel = baseModel(withId: id) else { return nil }
-        return mutations[id]?.apply(to: baseModel) ?? baseModel
-    }
-    
-    public func allModels() -> [Model] {
-        if !cacheInvalidated, let cached = modelsCache {
-            return cached
-        }
-        
-        guard case .success(let models) = state else { return [] }
-        
-        let result = models.map { model in
-            mutations[model.id]?.apply(to: model) ?? model
-        }
-        
-        modelsCache = result
-        cacheInvalidated = false
-        return result
-    }
-    
-    public func update<Value: Sendable>(
-        _ id: Model.ID,
-        keyPath: WritableKeyPath<Model, Value> & Sendable,
-        value: Value
-    ) {
-        guard baseModel(withId: id) != nil else { return }
-                
-        let newMutation = TypeSafeMutation<Model> { model in
-            var mutableModel = model
-            mutableModel[keyPath: keyPath] = value
-            return mutableModel
-        }
-        
-        applyMutation(for: id, mutation: newMutation)
-    }
-    
-    public func batchUpdate(_ id: Model.ID, _ builder: (inout UpdateBuilder<Model>) -> Void) {
-        guard let baseModel = baseModel(withId: id) else { return }
-        
-        var updateBuilder = UpdateBuilder<Model>()
-        builder(&updateBuilder)
-        let transform = updateBuilder.build()
-        
-        let newMutation = TypeSafeMutation<Model> { model in
-            var mutableModel = model
-            transform(&mutableModel)
-            return mutableModel
-        }
-        
-        applyMutation(for: id, mutation: newMutation)
-    }
-    
-    private func applyMutation(for id: Model.ID, mutation: TypeSafeMutation<Model>) {
-        if isUndoRedoEnabled {
-            undoBuffer.append(mutations)
-            redoBuffer.removeAll()
-        }
-        
-        if let existingMutation = mutations[id] {
-            mutations[id] = existingMutation.merge(with: mutation)
-        } else {
-            mutations[id] = mutation
-        }
-        
-        
-        mutationTrigger = UUID()
-    }
-    
-    public func mutatedModel(withId id: Model.ID) -> Model? {
-        // Subscribe vào mutationTrigger
-        _ = mutationTrigger
-        return model(withId: id)
-    }
-    
-    public func commitMutations() {
-        guard case .success(var models) = state else { return }
-        
-        for (id, mutation) in mutations {
-            if let index = models.firstIndex(where: { $0.id == id }) {
-                models[index] = mutation.apply(to: models[index])
-            }
-        }
-        
-        state = .success(models)
-        mutations.removeAll()
-        cacheInvalidated = true
-        
-        if isUndoRedoEnabled {
-            undoBuffer.removeAll()
-            redoBuffer.removeAll()
-        }
-    }
-    
-    public func discardMutations() {
-        mutations.removeAll()
-        cacheInvalidated = true
-    }
-    
-    public func hasMutations(for id: Model.ID) -> Bool {
-        mutations[id] != nil
-    }
-    
-    // MARK: - Pagination Support
-    /*
-    public func loadPage(
-        page: Int = 0,
-        append: Bool = false,
-        retryPolicy: RetryPolicy = .default,
-        operation: @escaping @Sendable (Int, Int) async throws -> [Model]
-    ) async {
-        let taskId = "load_page_\(page)"
-        taskManager.cancel(id: taskId)
-        
-        let previousData = append ? state.data : nil
-        state = .loading(previous: previousData)
-        print("⏳ Loading state set")
-        
-        let pageSize = config.pageSize
-        
-        
-        taskManager.run(id: taskId) { [weak self] in
-            guard let self = self else { return }
-            
-            do {
-                
-                let newModels = try await Task.retrying(policy: retryPolicy) {
-                    try await operation(page, pageSize)
-                }
-                
-                await MainActor.run {
-                    if append, case .success(let existing) = self.state {
-                        self.state = .success(existing + newModels)
-                    } else {
-                        self.state = .success(newModels)
-                    }
-                    
-                    self.currentPage = page
-                    self.hasMorePages = newModels.count >= pageSize
-                    self.cacheInvalidated = true
-                }
-            } catch is CancellationError {
-                await MainActor.run {
-                    self.state = .failure(.cancelled, previous: previousData)
-                }
-            } catch {
-                await MainActor.run {
-                    self.state = .failure(.unknown(error.localizedDescription), previous: previousData)
-                }
-            }
-        }
-    }
-    */
-    
-    public func loadPage(
-        page: Int = 0,
-        append: Bool = false,
-        retryPolicy: RetryPolicy = .default,
-        operation: @escaping @Sendable (Int, Int) async throws -> [Model]
-    ) async {
-        // Cancel previous task
-        currentLoadTask?.cancel()
-        
-        // Set loading state
-        let previousData = append ? state.data : nil
-        state = .loading(previous: previousData)
-        print("⏳ Loading state set")
-        
-        // Create and store new task
-        currentLoadTask = Task { @MainActor [weak self] in
-            guard let self = self else { return }
-            
-            do {
-                print("🚀 Starting data fetch...")
-                
-                // Retry logic with proper error handling
-                var lastError: Error?
-                var newModels: [Model]?
-                
-                for attempt in 0..<retryPolicy.maxAttempts {
-                    // Check cancellation before each attempt
-                    try Task.checkCancellation()
-                    
-                    do {
-                        newModels = try await operation(page, self.config.pageSize)
-                        break // Success
-                    } catch is CancellationError {
-                        throw _Concurrency.CancellationError()
-                    } catch {
-                        lastError = error
-                        
-                        if attempt < retryPolicy.maxAttempts - 1 {
-                            let delay = min(
-                                retryPolicy.initialDelay * pow(retryPolicy.multiplier, Double(attempt)),
-                                retryPolicy.maxDelay
-                            )
-                            print("⚠️ Attempt \(attempt + 1) failed, retrying in \(delay)s...")
-                            try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
-                        }
-                    }
-                }
-                
-                guard let models = newModels else {
-                    throw lastError ?? StateError.unknown("Retry failed")
-                }
-                
-                print("✅ Data fetched: \(models.count) items")
-                
-                // Update state
-                if append, case .success(let existing) = self.state {
-                    self.state = .success(existing + models)
-                } else {
-                    self.state = .success(models)
-                }
-                
-                self.currentPage = page
-                self.hasMorePages = models.count >= self.config.pageSize
-                self.cacheInvalidated = true
-                
-                print("🎯 State updated to SUCCESS with \(models.count) items")
-                
-            } catch is CancellationError {
-                print("❌ Operation cancelled")
-                self.state = .failure(.cancelled, previous: previousData)
-            } catch {
-                print("❌ Error: \(error.localizedDescription)")
-                self.state = .failure(.unknown(error.localizedDescription), previous: previousData)
-            }
-        }
-        
-        // Wait for task to complete
-        await currentLoadTask?.value
-    }
-    
-    public func loadNextPage(
-        retryPolicy: RetryPolicy = .default,
-        operation: @escaping @Sendable (Int, Int) async throws -> [Model]
-    ) async {
-        guard hasMorePages, !state.isLoading else { return }
-        await loadPage(page: currentPage + 1, append: true, retryPolicy: retryPolicy, operation: operation)
-    }
-    
-    public func refresh(
-        retryPolicy: RetryPolicy = .default,
-        operation: @escaping @Sendable (Int, Int) async throws -> [Model]
-    ) async {
-        await loadPage(page: 0, append: false, retryPolicy: retryPolicy, operation: operation)
-    }
-    
-    // MARK: - Undo/Redo
-    
-    public func enableUndoRedo() {
-        isUndoRedoEnabled = true
-    }
-    
-    public func disableUndoRedo() {
-        isUndoRedoEnabled = false
-        undoBuffer.removeAll()
-        redoBuffer.removeAll()
-    }
-    
-    public func undo() {
-        guard isUndoRedoEnabled, !undoBuffer.isEmpty else { return }
-        redoBuffer.append(mutations)
-        mutations = undoBuffer.removeLast() ?? [:]
-        cacheInvalidated = true
-    }
-    
-    public func redo() {
-        guard isUndoRedoEnabled, !redoBuffer.isEmpty else { return }
-        undoBuffer.append(mutations)
-        mutations = redoBuffer.removeLast() ?? [:]
-        cacheInvalidated = true
-    }
-    
-    public var canUndo: Bool { isUndoRedoEnabled && !undoBuffer.isEmpty }
-    public var canRedo: Bool { isUndoRedoEnabled && !redoBuffer.isEmpty }
-    
-    // MARK: - Helpers
-    
-    private func baseModel(withId id: Model.ID) -> Model? {
-        guard case .success(let models) = state else { return nil }
-        return models.first(where: { $0.id == id })
-    }
-    
-    public func cancelAll() {
-        taskManager.cancelAll()
-    }
-    
-    deinit {
-        //taskManager.cancelAll()
-        let manager = taskManager
-        Task { @MainActor in
-            manager.cancelAll()
-        }
+// MARK: - DSL Support
+
+extension UpdateBuilder {
+    /// Creates an UpdateBuilder using a result builder syntax
+    public static func build(@UpdateBuilderDSL _ content: (inout UpdateBuilder<Model>) -> Void) -> UpdateBuilder<Model> {
+        var builder = UpdateBuilder<Model>()
+        content(&builder)
+        return builder
     }
 }
 
-// MARK: ====================================================
-// MARK: - 9. Enhanced Containers with DI
-// MARK: ====================================================
-@available(iOS 16.0, *)
-@MainActor
-public class SingleStateContainer<Model: Equatable & Sendable>: ObservableObject {
-    
-    @Published public var store: SingleStateStore<Model>
-    
-    public init(config: StateConfiguration = .default) {
-        self.store = SingleStateStore<Model>(config: config)
+@resultBuilder
+public struct UpdateBuilderDSL {
+    public static func buildBlock() -> [(inout Any) -> Void] {
+        []
     }
-    
-    public func load(
-        retryPolicy: RetryPolicy = .default,
-        operation: @escaping @Sendable () async throws -> Model
-    ) async {
-        await store.load(retryPolicy: retryPolicy, operation: operation)
-    }
-    
-    public func update<Value: Sendable>(
-        keyPath: WritableKeyPath<Model, Value> & Sendable,
-        value: Value
-    ) {
-        store.update(keyPath: keyPath, value: value)
-    }
-    
-    public func batchUpdate(_ builder: (inout UpdateBuilder<Model>) -> Void) {
-        store.batchUpdate(builder)
-    }
-    
-    public var model: Model? { store.currentModel }
-    public func commit() { store.commitMutation() }
-    public func discard() { store.discardMutation() }
-}
-
-@available(iOS 16.0, *)
-@MainActor
-public class StateContainer<Model: Identifiable & Equatable & Sendable>: ObservableObject where Model.ID: Sendable {
-    
-    @Published public var store: StateStore<Model>
-    
-    public init(config: StateConfiguration = .default) {
-        self.store = StateStore<Model>(config: config)
-    }
-    
-    public func loadPage(
-        page: Int = 0,
-        append: Bool = false,
-        retryPolicy: RetryPolicy = .default,
-        operation: @escaping @Sendable (Int, Int) async throws -> [Model]
-    ) async {
-        await store.loadPage(page: page, append: append, retryPolicy: retryPolicy, operation: operation)
-    }
-    
-    public func loadNextPage(
-        retryPolicy: RetryPolicy = .default,
-        operation: @escaping @Sendable (Int, Int) async throws -> [Model]
-    ) async {
-        await store.loadNextPage(retryPolicy: retryPolicy, operation: operation)
-    }
-    
-    public func refresh(
-        retryPolicy: RetryPolicy = .default,
-        operation: @escaping @Sendable (Int, Int) async throws -> [Model]
-    ) async {
-        await store.refresh(retryPolicy: retryPolicy, operation: operation)
-    }
-    
-    public func update<Value: Sendable>(
-        _ id: Model.ID,
-        keyPath: WritableKeyPath<Model, Value> & Sendable,
-        value: Value
-    ) {
-        store.update(id, keyPath: keyPath, value: value)
-    }
-    
-    public func batchUpdate(_ id: Model.ID, _ builder: (inout UpdateBuilder<Model>) -> Void) {
-        store.batchUpdate(id, builder)
-    }
-    
-    public func model(withId id: Model.ID) -> Model? { store.model(withId: id) }
-    public func allModels() -> [Model] { store.allModels() }
-    public func commit() { store.commitMutations() }
-    public func discard() { store.discardMutations() }
 }
