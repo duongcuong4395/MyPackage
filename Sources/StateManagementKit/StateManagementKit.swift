@@ -198,11 +198,14 @@ public final class TaskManager {
     public func run(id: String, priority: TaskPriority = .userInitiated, operation: @escaping @Sendable () async throws -> Void) {
         cancel(id: id)
         
-        tasks[id] = Task(priority: priority) { [weak self] in
+        tasks[id] = Task(priority: priority) { @MainActor [weak self] in
             defer {
+                /*
                 Task { @MainActor in
                     self?.tasks.removeValue(forKey: id)
                 }
+                */
+                self?.tasks.removeValue(forKey: id)
             }
             
             do {
@@ -211,6 +214,7 @@ public final class TaskManager {
                 // Silently handle cancellation
             } catch {
                 // Log error if needed
+                print("⚠️ TaskManager error: \(error)")
             }
         }
     }
@@ -519,6 +523,9 @@ public class StateStore<Model: Identifiable & Equatable & Sendable>: ObservableO
     private var modelsCache: [Model]?
     private var cacheInvalidated = true
     
+    // Track current loading task for cancellation
+    private var currentLoadTask: Task<Void, Never>?
+    
     public init(config: StateConfiguration = .default) {
         self.config = config
         self.undoBuffer = CircularBuffer(capacity: config.maxUndoSteps)
@@ -651,7 +658,7 @@ public class StateStore<Model: Identifiable & Equatable & Sendable>: ObservableO
     }
     
     // MARK: - Pagination Support
-    
+    /*
     public func loadPage(
         page: Int = 0,
         append: Bool = false,
@@ -663,13 +670,16 @@ public class StateStore<Model: Identifiable & Equatable & Sendable>: ObservableO
         
         let previousData = append ? state.data : nil
         state = .loading(previous: previousData)
+        print("⏳ Loading state set")
         
         let pageSize = config.pageSize
+        
         
         taskManager.run(id: taskId) { [weak self] in
             guard let self = self else { return }
             
             do {
+                
                 let newModels = try await Task.retrying(policy: retryPolicy) {
                     try await operation(page, pageSize)
                 }
@@ -695,6 +705,87 @@ public class StateStore<Model: Identifiable & Equatable & Sendable>: ObservableO
                 }
             }
         }
+    }
+    */
+    
+    public func loadPage(
+        page: Int = 0,
+        append: Bool = false,
+        retryPolicy: RetryPolicy = .default,
+        operation: @escaping @Sendable (Int, Int) async throws -> [Model]
+    ) async {
+        // Cancel previous task
+        currentLoadTask?.cancel()
+        
+        // Set loading state
+        let previousData = append ? state.data : nil
+        state = .loading(previous: previousData)
+        print("⏳ Loading state set")
+        
+        // Create and store new task
+        currentLoadTask = Task { @MainActor [weak self] in
+            guard let self = self else { return }
+            
+            do {
+                print("🚀 Starting data fetch...")
+                
+                // Retry logic with proper error handling
+                var lastError: Error?
+                var newModels: [Model]?
+                
+                for attempt in 0..<retryPolicy.maxAttempts {
+                    // Check cancellation before each attempt
+                    try Task.checkCancellation()
+                    
+                    do {
+                        newModels = try await operation(page, self.config.pageSize)
+                        break // Success
+                    } catch is CancellationError {
+                        throw _Concurrency.CancellationError()
+                    } catch {
+                        lastError = error
+                        
+                        if attempt < retryPolicy.maxAttempts - 1 {
+                            let delay = min(
+                                retryPolicy.initialDelay * pow(retryPolicy.multiplier, Double(attempt)),
+                                retryPolicy.maxDelay
+                            )
+                            print("⚠️ Attempt \(attempt + 1) failed, retrying in \(delay)s...")
+                            try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+                        }
+                    }
+                }
+                
+                guard let models = newModels else {
+                    throw lastError ?? StateError.unknown("Retry failed")
+                }
+                
+                print("✅ Data fetched: \(models.count) items")
+                
+                // Update state
+                if append, case .success(let existing) = self.state {
+                    self.state = .success(existing + models)
+                } else {
+                    self.state = .success(models)
+                }
+                
+                self.currentPage = page
+                self.hasMorePages = models.count >= self.config.pageSize
+                self.cacheInvalidated = true
+                
+                print("🎯 State updated to SUCCESS with \(models.count) items")
+                
+            } catch is CancellationError {
+                print("❌ Operation cancelled")
+                self.state = .failure(.cancelled, previous: previousData)
+            } catch {
+                print("❌ Error: \(error.localizedDescription)")
+                self.state = .failure(.unknown(error.localizedDescription), previous: previousData)
+            }
+        }
+        
+        // Wait for task to complete
+        await currentLoadTask?.value
     }
     
     public func loadNextPage(
