@@ -496,7 +496,7 @@ open class SingleStateStore<Model: Equatable & Sendable>: ObservableObject {
 // MARK: ====================================================
 @available(iOS 16.0, *)
 @MainActor
-open class StateStore<Model: Identifiable & Equatable & Sendable>: ObservableObject where Model.ID: Sendable {
+public class StateStore<Model: Identifiable & Equatable & Sendable>: ObservableObject where Model.ID: Sendable {
     
     @Published public private(set) var state: AsyncState<[Model]> = .idle
     @Published public private(set) var stateSelected: AsyncState<Model> = .idle
@@ -764,7 +764,7 @@ open class StateStore<Model: Identifiable & Equatable & Sendable>: ObservableObj
 // MARK: ====================================================
 @available(iOS 16.0, *)
 @MainActor
-open class SingleStateContainer<Model: Equatable & Sendable>: ObservableObject {
+public class SingleStateContainer<Model: Equatable & Sendable>: ObservableObject {
     
     @Published public var store: SingleStateStore<Model>
     
@@ -797,7 +797,7 @@ open class SingleStateContainer<Model: Equatable & Sendable>: ObservableObject {
 
 @available(iOS 16.0, *)
 @MainActor
-open class StateContainer<Model: Identifiable & Equatable & Sendable>: ObservableObject where Model.ID: Sendable {
+public class StateContainer<Model: Identifiable & Equatable & Sendable>: ObservableObject where Model.ID: Sendable {
     
     @Published public var store: StateStore<Model>
     
