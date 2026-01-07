@@ -332,7 +332,7 @@ public struct UserDefaultsPersistence<Model: Codable & Sendable>: PersistencePro
 // MARK: ====================================================
 @available(iOS 16.0, *)
 @MainActor
-public class SingleStateStore<Model: Equatable & Sendable>: ObservableObject {
+open class SingleStateStore<Model: Equatable & Sendable>: ObservableObject {
     
     @Published public private(set) var state: AsyncState<Model> = .idle
     @Published public private(set) var mutation: TypeSafeMutation<Model>?
@@ -496,7 +496,7 @@ public class SingleStateStore<Model: Equatable & Sendable>: ObservableObject {
 // MARK: ====================================================
 @available(iOS 16.0, *)
 @MainActor
-public class StateStore<Model: Identifiable & Equatable & Sendable>: ObservableObject where Model.ID: Sendable {
+open class StateStore<Model: Identifiable & Equatable & Sendable>: ObservableObject where Model.ID: Sendable {
     
     @Published public private(set) var state: AsyncState<[Model]> = .idle
     @Published public private(set) var stateSelected: AsyncState<Model> = .idle
