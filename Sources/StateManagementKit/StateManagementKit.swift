@@ -450,7 +450,7 @@ import Combine
 
 @available(iOS 13.0, *)
 @MainActor
-public final class SingleStateStore<Model: Equatable & Sendable>: ObservableObject {
+open class SingleStateStore<Model: Equatable & Sendable>: ObservableObject {
     
     @Published public private(set) var state: AsyncState<Model> = .idle
     @Published public private(set) var mutation: TypeSafeMutation<Model>?
