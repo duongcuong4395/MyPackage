@@ -664,12 +664,14 @@ public class StateStore<Model: Identifiable & Equatable & Sendable>: ObservableO
         let previousData = append ? state.data : nil
         state = .loading(previous: previousData)
         
+        let pageSize = config.pageSize
+        
         taskManager.run(id: taskId) { [weak self] in
             guard let self = self else { return }
             
             do {
                 let newModels = try await Task.retrying(policy: retryPolicy) {
-                    try await operation(page, self.config.pageSize)
+                    try await operation(page, pageSize)
                 }
                 
                 await MainActor.run {
@@ -680,7 +682,7 @@ public class StateStore<Model: Identifiable & Equatable & Sendable>: ObservableO
                     }
                     
                     self.currentPage = page
-                    self.hasMorePages = newModels.count >= self.config.pageSize
+                    self.hasMorePages = newModels.count >= pageSize
                     self.cacheInvalidated = true
                 }
             } catch is CancellationError {
