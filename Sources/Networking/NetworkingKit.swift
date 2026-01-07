@@ -15,6 +15,7 @@
 import Foundation
 import Alamofire
 
+
 // MARK: - API Result
 public enum APIResult2<T> {
     case success(T)
