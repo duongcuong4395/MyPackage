@@ -8,6 +8,7 @@
 import Foundation
 import Alamofire
 
+/*
 public enum APIResult<T> {
     case Successs(T)
     case Failure(Error)
@@ -116,3 +117,5 @@ public extension APIExecution {
         }
     }
 }
+
+*/
