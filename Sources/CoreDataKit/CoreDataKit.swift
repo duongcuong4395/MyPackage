@@ -87,28 +87,48 @@ public extension CoreDataKit {
     // MARK: - Atomic Upsert (Update or Insert)
     
     /// Atomic upsert operation - thread safe
+    /// Handles both contexts with parent (NSPersistentContainer) and without parent (SwiftUI viewContext)
     func upsert(for context: NSManagedObjectContext) async throws -> OperationResult {
         let startTime = Date()
-        let pool = CoreDataContextPool.shared
-        let backgroundContext = pool.getContext(parent: context)
+        
+        // Check if context has a parent - if not, use context directly
+        // SwiftUI's viewContext is a root context without parent
+        let workingContext: NSManagedObjectContext
+        let shouldUsePool = context.parent != nil
+        
+        if shouldUsePool {
+            let pool = CoreDataContextPool.shared
+            workingContext = pool.getContext(parent: context)
+        } else {
+            workingContext = context
+        }
+        
+        let cleanup: () -> Void = {
+            if shouldUsePool {
+                CoreDataContextPool.shared.returnContext(workingContext)
+            }
+        }
         
         defer {
-            pool.returnContext(backgroundContext)
+            cleanup()
         }
         
         return try await withCheckedThrowingContinuation { continuation in
-            backgroundContext.perform {
+            workingContext.perform {
                 do {
                     // Atomic check-and-update trong cùng 1 transaction
-                    let (exists, objects) = try self.checkExists(from: backgroundContext)
+                    let (exists, objects) = try self.checkExists(from: workingContext)
                     
                     if exists, let existingObject = objects.first {
                         // Update
-                        try self.updateCoreData(existingObject, context: backgroundContext)
+                        try self.updateCoreData(existingObject, context: workingContext)
                         
-                        if backgroundContext.hasChanges {
-                            try backgroundContext.save()
-                            try context.save()
+                        if workingContext.hasChanges {
+                            try workingContext.save()
+                            // Only save parent context if we have one
+                            if shouldUsePool && context.hasChanges {
+                                try context.save()
+                            }
                         }
                         
                         let metrics = PerformanceMetrics(
@@ -125,10 +145,13 @@ public extension CoreDataKit {
                         ))
                     } else {
                         // Insert
-                        _ = try self.convertToCoreData(context: backgroundContext)
+                        _ = try self.convertToCoreData(context: workingContext)
                         
-                        try backgroundContext.save()
-                        try context.save()
+                        try workingContext.save()
+                        // Only save parent context if we have one
+                        if shouldUsePool && context.hasChanges {
+                            try context.save()
+                        }
                         
                         let metrics = PerformanceMetrics(
                             operation: "upsert_insert",
@@ -153,19 +176,36 @@ public extension CoreDataKit {
     
     // MARK: - Safe Delete
     
+    /// Safe delete operation - handles both contexts with parent and without parent
     func delete(for context: NSManagedObjectContext) async throws -> OperationResult {
         let startTime = Date()
-        let pool = CoreDataContextPool.shared
-        let backgroundContext = pool.getContext(parent: context)
+        
+        // Check if context has a parent - if not, use context directly
+        // SwiftUI's viewContext is a root context without parent
+        let workingContext: NSManagedObjectContext
+        let shouldUsePool = context.parent != nil
+        
+        if shouldUsePool {
+            let pool = CoreDataContextPool.shared
+            workingContext = pool.getContext(parent: context)
+        } else {
+            workingContext = context
+        }
+        
+        let cleanup: () -> Void = {
+            if shouldUsePool {
+                CoreDataContextPool.shared.returnContext(workingContext)
+            }
+        }
         
         defer {
-            pool.returnContext(backgroundContext)
+            cleanup()
         }
         
         return try await withCheckedThrowingContinuation { continuation in
-            backgroundContext.perform {
+            workingContext.perform {
                 do {
-                    let (exists, objects) = try self.checkExists(from: backgroundContext)
+                    let (exists, objects) = try self.checkExists(from: workingContext)
                     
                     guard exists, let objectToDelete = objects.first else {
                         continuation.resume(returning: OperationResult(
@@ -175,11 +215,14 @@ public extension CoreDataKit {
                         return
                     }
                     
-                    backgroundContext.delete(objectToDelete)
+                    workingContext.delete(objectToDelete)
                     
-                    if backgroundContext.hasChanges {
-                        try backgroundContext.save()
-                        try context.save()
+                    if workingContext.hasChanges {
+                        try workingContext.save()
+                        // Only save parent context if we have one
+                        if shouldUsePool && context.hasChanges {
+                            try context.save()
+                        }
                     }
                     
                     let metrics = PerformanceMetrics(
