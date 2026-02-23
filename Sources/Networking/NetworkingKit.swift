@@ -65,9 +65,9 @@ public protocol HttpRouter {
 
 // MARK: - Default implementations
 public extension HttpRouter {
-    var headers: [String: String]? {
-        return nil
-    }
+  //  var headers: [String: String]? {
+//        return nil
+    //}
     
     var queryParameters: [String: Any]? {
         return nil
