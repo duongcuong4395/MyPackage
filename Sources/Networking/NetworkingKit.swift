@@ -66,7 +66,7 @@ public protocol HttpRouter {
 // MARK: - Default implementations
 public extension HttpRouter {
     var headers: [String: String]? {
-        return ["Content-Type": "application/json"]
+        return nil
     }
     
     var queryParameters: [String: Any]? {
