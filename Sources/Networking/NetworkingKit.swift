@@ -65,12 +65,16 @@ public protocol HttpRouter {
 
 // MARK: - Default implementations
 public extension HttpRouter {
-  //  var headers: [String: String]? {
-//        return nil
-    //}
+    var headers: [String: String]? {
+        return nil
+    }
     
     var queryParameters: [String: Any]? {
         return nil
+    }
+    
+    var method: HTTPMethod {
+        return .get
     }
     
     var body: Data? {
@@ -148,7 +152,8 @@ public class NetworkLogger {
         output += "Method: \(request.httpMethod ?? "nil")\n"
         
         if let headers = request.allHTTPHeaderFields, !headers.isEmpty {
-            output += "Headers: \(headers)\n"
+            //output += "Headers: \(headers)\n"
+            output += "Headers: \n"
         }
         
         if let body = request.httpBody,
@@ -165,14 +170,14 @@ public class NetworkLogger {
         var output = "\n✅ RESPONSE\n"
         output += "Status Code: \(response?.statusCode ?? 0)\n"
         
-        /*
+        
         if let data = data,
            let json = try? JSONSerialization.jsonObject(with: data),
            let prettyData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted),
            let prettyString = String(data: prettyData, encoding: .utf8) {
             output += "Body: \(prettyString)\n"
         }
-        */
+        
         
         print(output)
     }
