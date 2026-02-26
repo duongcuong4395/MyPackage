@@ -397,7 +397,7 @@ public extension CoreDataKit {
     ///   - context: The `NSManagedObjectContext` to operate on.
     /// - Returns: A `BatchOperationResult` summarising the outcome.
     @discardableResult
-    static func batchUpsert(
+    func batchUpsert(
         _ items: [Self],
         for context: NSManagedObjectContext
     ) async throws -> BatchOperationResult {
@@ -481,7 +481,7 @@ public extension CoreDataKit {
     ///   - context: The `NSManagedObjectContext` to operate on.
     /// - Returns: A `BatchOperationResult` summarising the outcome.
     @discardableResult
-    static func batchDelete(
+    func batchDelete(
         _ items: [Self],
         for context: NSManagedObjectContext
     ) async throws -> BatchOperationResult {
@@ -562,7 +562,7 @@ public extension CoreDataKit {
     ///   - context:     The view or background context.
     ///   - entityName:  The CoreData entity name (required as a static parameter).
     @discardableResult
-    static func deleteAll(
+    func deleteAll(
         entityName: String,
         for context: NSManagedObjectContext
     ) async throws -> OperationResult {
@@ -627,7 +627,7 @@ public extension CoreDataKit {
     ///   - transform:       Maps each `objCoreData` → your `Sendable` value type.
     ///                      Runs on the context's private queue.
     /// - Returns: Array of transformed `Result` values.
-    static func fetchAll<Result: Sendable>(
+    func fetchAll<Result: Sendable>(
         from context: NSManagedObjectContext,
         sortDescriptors: [NSSortDescriptor] = [],
         fetchLimit: Int = 0,
@@ -666,7 +666,7 @@ public extension CoreDataKit {
     ///   - sortDescriptors: Optional sort descriptors.
     ///   - fetchLimit:      Maximum records (0 = unlimited).
     /// - Returns: Array of `NSManagedObjectID` (inherently `Sendable`).
-    static func fetchAllIDs(
+    func fetchAllIDs(
         from context: NSManagedObjectContext,
         sortDescriptors: [NSSortDescriptor] = [],
         fetchLimit: Int = 0
@@ -723,7 +723,7 @@ public extension CoreDataKit {
     ///   - transform:       Maps each `objCoreData` → your `Sendable` value type.
     ///                      Runs on the context's private queue.
     /// - Returns: Array of transformed `Result` values.
-    static func fetch<Result: Sendable>(
+    func fetch<Result: Sendable>(
         where predicate: NSPredicate,
         from context: NSManagedObjectContext,
         sortDescriptors: [NSSortDescriptor] = [],
@@ -765,7 +765,7 @@ public extension CoreDataKit {
     ///   - sortDescriptors: Optional sort descriptors.
     ///   - fetchLimit:      Maximum records (0 = unlimited).
     /// - Returns: Matching `NSManagedObjectID` array.
-    static func fetchIDs(
+    func fetchIDs(
         where predicate: NSPredicate,
         from context: NSManagedObjectContext,
         sortDescriptors: [NSSortDescriptor] = [],
