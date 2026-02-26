@@ -8,6 +8,7 @@
 import CoreData
 
 // MARK: - Improved Error Types
+/*
 public enum CoreDataError: LocalizedError {
     case conversionFailed(String)
     case fetchFailed(String)
@@ -39,6 +40,42 @@ public enum CoreDataError: LocalizedError {
             return "Concurrency conflict: \(details)"
         case .validationFailed(let details):
             return "Validation failed: \(details)"
+        }
+    }
+}
+*/
+
+public enum CoreDataError: LocalizedError {
+    case contextUnavailable
+    case entityNotFound(String)
+    case saveFailed(underlying: Error)
+    case fetchFailed(underlying: Error)
+    case insertFailed(underlying: Error)
+    case updateFailed(underlying: Error)
+    case deleteFailed(underlying: Error)
+    case batchOperationFailed(successes: Int, failures: Int, underlying: [Error])
+    case taskCancelled
+
+    public var errorDescription: String? {
+        switch self {
+        case .contextUnavailable:
+            return "NSManagedObjectContext is unavailable."
+        case .entityNotFound(let id):
+            return "Entity with identifier '\(id)' was not found."
+        case .saveFailed(let e):
+            return "Save failed: \(e.localizedDescription)"
+        case .fetchFailed(let e):
+            return "Fetch failed: \(e.localizedDescription)"
+        case .insertFailed(let e):
+            return "Insert failed: \(e.localizedDescription)"
+        case .updateFailed(let e):
+            return "Update failed: \(e.localizedDescription)"
+        case .deleteFailed(let e):
+            return "Delete failed: \(e.localizedDescription)"
+        case .batchOperationFailed(let s, let f, _):
+            return "Batch operation: \(s) succeeded, \(f) failed."
+        case .taskCancelled:
+            return "Operation was cancelled."
         }
     }
 }

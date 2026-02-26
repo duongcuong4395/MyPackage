@@ -18,6 +18,7 @@
 //  - Testability improvements
 //
 
+/*
 import SwiftUI
 @preconcurrency import CoreData
 import OSLog
@@ -42,10 +43,6 @@ public struct PerformanceMetrics {
         )
     }
 }
-
-
-
-
 
 // MARK: - Operation Result với metrics
 
@@ -245,3 +242,5 @@ public extension CoreDataKit {
         }
     }
 }
+
+*/

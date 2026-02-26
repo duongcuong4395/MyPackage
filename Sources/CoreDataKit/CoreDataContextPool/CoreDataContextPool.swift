@@ -10,7 +10,9 @@
 // MARK: - Context Pool (Singleton)
 
 /// Reusable context pool to reduce overhead
-@available(iOS 16.0, *)
+
+/*
+ @available(iOS 16.0, *)
 public class CoreDataContextPool {
     nonisolated(unsafe) public static let shared = CoreDataContextPool()
     
@@ -46,3 +48,4 @@ public class CoreDataContextPool {
         }
     }
 }
+*/

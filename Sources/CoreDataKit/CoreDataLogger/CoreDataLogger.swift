@@ -11,6 +11,7 @@ import OSLog
 // MARK: - Logging System
 
 /// Unified logging for CoreData operations
+/*
 @available(iOS 16.0, *)
 public struct CoreDataLogger {
     private static let logger = Logger(subsystem: "com.app.coredata", category: "operations")
@@ -34,3 +35,4 @@ public struct CoreDataLogger {
         }
     }
 }
+*/
