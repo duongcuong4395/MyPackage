@@ -132,9 +132,7 @@ public extension BatchCoreDataOperations {
                 } catch {
                     CoreDataLogger.log("Batch upsert failed: \(error)", level: .error)
                     continuation.resume(throwing: CoreDataError.batchOperationFailed(
-                        succeeded: 0,
-                        failed: objects.count,
-                        errors: [error]
+                        successes: 0, failures: objects.count, underlying: [error]
                     ))
                 }
             }
