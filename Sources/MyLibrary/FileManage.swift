@@ -8,10 +8,10 @@
 import Foundation
 import SwiftUI
 
+@available(iOS 13.0.0, *)
 public protocol FileManaging {
     func load<T: Decodable>(by path: String) -> T?
-    func load<T: Decodable>(by path: String, completion: @escaping @Sendable (T?) -> Void)
-
+    func load<T: Decodable & Sendable>(by path: String) async -> T?
 }
 
 public class FileManage: FileManaging {
@@ -36,20 +36,13 @@ public class FileManage: FileManaging {
          return decodedData
     }
     
-    public func load<T: Decodable>(by path: String, completion: @escaping @Sendable (T?) -> Void) {
-        DispatchQueue.global(qos: .background).async {
-             guard let fileURL = Bundle.main.url(forResource: path, withExtension: nil),
-                   let data = try? Data(contentsOf: fileURL),
-                   let decodedData = try? JSONDecoder().decode(T.self, from: data) else {
-                 DispatchQueue.main.async {
-                     completion(nil)
-                 }
-                 return
-             }
-             DispatchQueue.main.async {
-                 completion(decodedData)
-             }
-         }
+    @available(iOS 13.0.0, *)
+    public func load<T: Decodable & Sendable>(by path: String) async -> T? {
+        await Task.detached(priority: .background) {
+            guard let fileURL = Bundle.main.url(forResource: path, withExtension: nil),
+                  let data = try? Data(contentsOf: fileURL) else { return nil }
+            return try? JSONDecoder().decode(T.self, from: data)
+        }.value
     }
 }
 
