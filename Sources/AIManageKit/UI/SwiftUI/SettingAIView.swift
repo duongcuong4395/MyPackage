@@ -787,7 +787,9 @@ public struct AISectionCard<Content: View>: View {
     let systemImage: String
     @ViewBuilder let content: () -> Content
 
-    public init(content: @escaping () -> Content) {
+    public init(title: String, systemImage: String, content: @escaping () -> Content) {
+        self.title = title
+        self.systemImage = systemImage
         self.content = content
     }
     
@@ -868,21 +870,20 @@ private extension AIModelType {
 
 /// Place in the main view toolbar.
 /// Badge color reflects keyStatus real-time; tap → open SettingsAIView.
-/*
-struct AISettingsButton: View {
+
+@available(iOS 17.0, *)
+public struct AISettingsButton: View {
 
     @Environment(AIManager.self) private var aiManager
-    @EnvironmentObject var appVM: AppViewModel
-
-    var body: some View {
+    var action: () -> Void
+    
+    public init(action: @escaping () -> Void) {
+        self.action = action
+    }
+    
+    public var body: some View {
         Button {
-            appVM.showDialogView(
-                with: "AI Settings",
-                and: AnyView(
-                    SettingAIView()
-                        .environment(aiManager)
-                )
-            )
+            action()
         } label: {
             ZStack(alignment: .topTrailing) {
                 Image(systemName: "brain.head.profile")
@@ -900,5 +901,5 @@ struct AISettingsButton: View {
         .animation(.spring(duration: 0.3), value: aiManager.keyStatus)
     }
 }
-*/
+
 
