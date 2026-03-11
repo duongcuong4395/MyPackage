@@ -98,11 +98,13 @@ public struct SettingAIView: View {
 // ═════════════════════════════════════════════════════════════════════════════
 
 @available(iOS 17.0, *)
-private struct AIOnboardingBannerView: View {
+public struct AIOnboardingBannerView: View {
 
     @Environment(AIManager.self) private var aiManager
 
-    var body: some View {
+    public init() {}
+    
+    public var body: some View {
         VStack(spacing: 10) {
             // Icon + title
             HStack(spacing: 12) {
@@ -183,11 +185,13 @@ private struct AIOnboardingBannerView: View {
 // MARK: - Section 1: Status
 // ═════════════════════════════════════════════════════════════════════════════
 @available(iOS 17.0, *)
-private struct AIStatusSectionView: View {
+public struct AIStatusSectionView: View {
 
     @Environment(AIManager.self) private var aiManager
 
-    var body: some View {
+    public init() {}
+    
+    public var body: some View {
         AISectionCard(title: "Status", systemImage: "antenna.radiowaves.left.and.right") {
             VStack(spacing: 10) {
 
@@ -288,7 +292,7 @@ private struct AIStatusSectionView: View {
 // ═════════════════════════════════════════════════════════════════════════════
 
 @available(iOS 17.0, *)
-private struct AIKeySectionView: View {
+public struct AIKeySectionView: View {
 
     @Environment(AIManager.self) private var aiManager
     //@EnvironmentObject var appVM: AppViewModel
@@ -315,8 +319,10 @@ private struct AIKeySectionView: View {
         || aiManager.keyStatus == .invalid
         || isEditing
     }
+    
+    public init() {}
 
-    var body: some View {
+    public var body: some View {
         AISectionCard(title: "API Key", systemImage: "key.fill") {
             VStack(spacing: 12) {
 
@@ -544,7 +550,7 @@ private struct AIKeySectionView: View {
 // ═════════════════════════════════════════════════════════════════════════════
 
 @available(iOS 17.0, *)
-private struct AIModelSectionView: View {
+public struct AIModelSectionView: View {
 
     @Environment(AIManager.self) private var aiManager
 
@@ -553,7 +559,9 @@ private struct AIModelSectionView: View {
 
     private var selectedIdentifier: String { aiManager.configuration.model.identifier }
 
-    var body: some View {
+    public init() {}
+    
+    public var body: some View {
         AISectionCard(title: "AI Model", systemImage: "cpu.fill") {
             VStack(spacing: 0) {
 
@@ -691,7 +699,7 @@ private struct AIModelSectionView: View {
 // ═════════════════════════════════════════════════════════════════════════════
 
 @available(iOS 17.0, *)
-struct AddCustomModelSheet: View {
+public struct AddCustomModelSheet: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var identifier: String = ""
@@ -709,7 +717,11 @@ struct AddCustomModelSheet: View {
         ("gemini-pro-vision",     "Vision capable"),
     ]
 
-    var body: some View {
+    public init(onAdd: @escaping (AIModelType) -> Void) {
+        self.onAdd = onAdd
+    }
+    
+    public var body: some View {
         NavigationStack {
             Form {
                 Section {
@@ -770,12 +782,16 @@ struct AddCustomModelSheet: View {
 // MARK: - Reusable Card
 // ═════════════════════════════════════════════════════════════════════════════
 @available(iOS 17.0, *)
-struct AISectionCard<Content: View>: View {
+public struct AISectionCard<Content: View>: View {
     let title: String
     let systemImage: String
     @ViewBuilder let content: () -> Content
 
-    var body: some View {
+    public init(content: @escaping () -> Content) {
+        self.content = content
+    }
+    
+    public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
                 Image(systemName: systemImage)
@@ -806,7 +822,7 @@ struct AISectionCard<Content: View>: View {
 // MARK: - AIKeyStatus helpers
 // ═════════════════════════════════════════════════════════════════════════════
 @available(iOS 13.0, *)
-extension AIKeyStatus {
+public extension AIKeyStatus {
     
     var color: Color {
         switch self {
