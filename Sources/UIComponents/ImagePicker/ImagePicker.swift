@@ -7,14 +7,17 @@
 
 import SwiftUI
 
+@available(iOS 17.0, *)
 public struct ImagePicker: UIViewControllerRepresentable {
     @Binding var selectedImage: UIImage?
     var onImagePicked: ((UIImage) -> Void)?
     
-    public init(selectedImage: UIImage? = nil, onImagePicked: (@escaping (UIImage) -> Void)? = nil) {
-        self.selectedImage = selectedImage
+    /*
+    public init(selectedImag: UIImage? = nil, onImagePicked: ((UIImage) -> Void)? = nil) {
+        self.selectedImage = selectedImag
         self.onImagePicked = onImagePicked
     }
+    */
 
     public func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
@@ -25,7 +28,7 @@ public struct ImagePicker: UIViewControllerRepresentable {
 
     public func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
 
-    func makeCoordinator() -> Coordinator {
+    public func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
 
